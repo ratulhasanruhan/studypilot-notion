@@ -11,8 +11,11 @@ from .models import Goal, Item, Plan
 REPO_URL = "https://github.com/ratulhasanruhan/studypilot-notion"
 
 
-def _text(content: str, **kwargs) -> dict:
-    return {"type": "text", "text": {"content": content, **kwargs}}
+def _text(content: str, annotations: dict | None = None, **kwargs) -> dict:
+    out = {"type": "text", "text": {"content": content, **kwargs}}
+    if annotations:
+        out["annotations"] = annotations
+    return out
 
 
 def _block(block_type: str, content: dict) -> dict:

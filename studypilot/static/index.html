@@ -56,6 +56,10 @@
   .legend { font-size:12px; color:var(--muted); margin-top:8px; } .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 4px 0 10px; vertical-align:middle; }
   details { margin-top:10px; font-size:13px; } pre { white-space:pre-wrap; background:#f7f6f3; padding:12px; border-radius:6px; font-size:12px; }
   a { color:var(--study); }
+  .hero { display:flex; gap:16px; align-items:center; justify-content:space-between; margin-top:14px; padding:16px 20px; border-radius:12px; background:linear-gradient(90deg,#e7f3f8,#ddedea); border:1px solid var(--line); font-size:14px; color:var(--muted); line-height:1.45; }
+  .hero b { color:var(--ink); font-size:16px; } .hero button { white-space:nowrap; font-size:16px; padding:12px 22px; }
+  .surprise { display:none; margin-top:14px; padding:14px 16px; border-radius:10px; border:1px dashed var(--life); background:#f3faf8; font-size:14px; }
+  .surprise b { font-size:16px; } .surprise .row { margin-top:8px; }
 </style>
 </head>
 <body>
@@ -68,6 +72,11 @@
     <div><b>🌱 2. Pick what you love</b>Hiking, running, reading... It suggests a plan that fits your workload and gives it real time slots.</div>
     <div><b>⚖️ 3. Check your Balance Score</b>One score per week shows overload early. Exam weeks automatically get lighter activities.</div>
   </div>
+  <section class="hero">
+    <div><b>New here? Do it all in one click.</b><br>Uses the syllabus and interests below: finds deadlines, picks 3 activities you'll enjoy, builds your weeks and fills your Notion page.</div>
+    <button id="autoBtn" class="big">✨ Plan my semester</button>
+  </section>
+  <div id="autoMsg" class="msg"></div>
 </header>
 <main>
   <section class="card">
@@ -119,8 +128,10 @@
       <button id="planBtn" class="big">Build my plan</button>
       <button id="digestBtn" class="ghost">Send weekly digest to Notion</button>
       <button id="dashboardBtn" class="ghost">Update Notion dashboard</button>
+      <button id="surpriseBtn" class="ghost">🎲 Surprise me</button>
     </div>
     <div id="planMsg" class="msg"></div>
+    <div id="surprise" class="surprise"></div>
     <div id="scores" class="scores"></div>
     <div id="cal" class="cal" style="display:none"></div>
     <div id="legend" class="legend" style="display:none"><i style="background:var(--study)"></i>Study<i style="background:var(--life)"></i>Life</div>
@@ -197,7 +208,7 @@ async function loadGoals() {
 
 $("suggestBtn").onclick = busy($("suggestBtn"), async () => {
   try {
-    const interests = [...picked, $("interests").value].filter(Boolean).join(", ");
+    const interests = interestText();
     const sugs = (await api("/api/suggest", { interests, today: day() })).suggestions;
     $("suggestions").innerHTML = sugs.map((s, i) => `<div class="sug"><b>${s.emoji} ${esc(s.title)}</b><button data-i="${i}">+ Add</button><span class="meta">${s.sessions_per_week}x a week · ${s.weekly_hours}h total · ${esc(s.time).toLowerCase()}s</span><span class="meta">${esc(s.why)}${s.books ? "<br>Try: " + s.books.slice(0, 3).map(esc).join(", ") : ""}</span></div>`).join("");
     document.querySelectorAll(".sug button").forEach((b) => b.onclick = async () => {
@@ -208,9 +219,7 @@ $("suggestBtn").onclick = busy($("suggestBtn"), async () => {
   } catch (e) { say("lifeMsg", e.message, false); }
 });
 
-$("planBtn").onclick = busy($("planBtn"), async () => {
-  try {
-    const p = await api("/api/plan", { today: day(), daily_cap: +$("cap").value });
+function renderPlan(p) {
     const study = p.sessions.filter((s) => s.kind === "Study"), life = p.sessions.filter((s) => s.kind === "Life");
     say("planMsg", `Saved to your Notion Schedule: ${study.length} study blocks and ${life.length} activities over the next weeks.`);
     $("scores").innerHTML = p.weeks.map((w, i) => `<div class="score ${w.label.split(" ")[0]}"><div>${i ? "Week of " + nice(w.start, { month: "short", day: "numeric" }) : "Next 7 days"}</div>
@@ -220,6 +229,38 @@ $("planBtn").onclick = busy($("planBtn"), async () => {
     $("cal").innerHTML = days.map((d) => `<div class="day"><div class="dh">${nice(d, { weekday: "short" })} <span>${nice(d, { month: "short", day: "numeric" })}</span></div>`
       + p.sessions.filter((s) => s.start.slice(0, 10) === d).map((s) => `<div class="blk ${s.kind}">${esc(s.title)}<i>${s.start.slice(11, 16)} · ${s.hours * 60} min</i></div>`).join("") + "</div>").join("");
     $("cal").style.display = $("legend").style.display = "";
+}
+const interestText = () => [...picked, $("interests").value].filter(Boolean).join(", ");
+
+$("autoBtn").onclick = busy($("autoBtn"), async () => {
+  try {
+    say("autoMsg", "Working: reading your syllabus, picking activities, planning your weeks...");
+    const r = await api("/api/autopilot", { text: $("syllabus").value, interests: interestText(), today: day(), daily_cap: +$("cap").value, course: $("course").value || null, year: +$("year").value || null });
+    say("autoMsg", `Done! ${r.found} deadlines found (${r.created} new)` + (r.goals_added.length ? `, added ${r.goals_added.join(", ")}` : "") + ". Your week is below" + (r.dashboard ? " and on your Notion page." : "."));
+    loadGoals(); renderPlan(r.plan);
+    $("scores").scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (e) { say("autoMsg", e.message, false); }
+});
+
+let idea = null, seed = 1;
+$("surpriseBtn").onclick = busy($("surpriseBtn"), async () => {
+  try {
+    idea = (await api("/api/surprise", { interests: interestText(), today: day(), seed: seed++ })).idea;
+    const when = idea && new Date(idea.start.slice(0, 16)).toLocaleString("en-US", { weekday: "long", hour: "numeric", minute: "2-digit" });
+    $("surprise").innerHTML = idea ? `<b>${idea.emoji} ${esc(idea.title)}</b><br>${when} · ${idea.hours * 60} min. ${esc(idea.why)}<div class="row"><button id="takeBtn">Add to my schedule</button><button id="againBtn" class="ghost">Another idea</button></div>`
+      : "Your week is full. Try lowering study hours/day or check next week.";
+    $("surprise").style.display = "block";
+    if (idea) {
+      $("againBtn").onclick = () => $("surpriseBtn").click();
+      $("takeBtn").onclick = async () => { $("takeBtn").disabled = true; await api("/api/surprise/add", { idea }); $("takeBtn").textContent = "✓ Added to your Notion Schedule"; };
+    }
+  } catch (e) { say("planMsg", e.message, false); }
+});
+
+$("planBtn").onclick = busy($("planBtn"), async () => {
+  try {
+    const p = await api("/api/plan", { today: day(), daily_cap: +$("cap").value });
+    renderPlan(p);
   } catch (e) { say("planMsg", e.message, false); }
 });
 
