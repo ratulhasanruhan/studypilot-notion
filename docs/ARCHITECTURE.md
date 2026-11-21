@@ -8,6 +8,7 @@
 | `studypilot/__init__.py` | Package version. |
 | `studypilot/__main__.py` | Runs the command-line interface as `python -m studypilot`. |
 | `studypilot/balance.py` | Calculates weekly Balance Scores, labels, and tips. |
+| `studypilot/charts.py` | Builds compact QuickChart URLs for dashboard charts. |
 | `studypilot/cli.py` | Implements the `studypilot` command-line interface. |
 | `studypilot/core.py` | Coordinates Notion setup, imports, planning, goals, dashboards, digests, and autopilot. |
 | `studypilot/dashboard.py` | Builds the Notion dashboard blocks from a plan and current data. |

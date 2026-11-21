@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from datetime import date, timedelta
 
+from .charts import balance_chart, course_hours_chart, week_hours_chart
 from .life import TEMPLATES
 from .models import Goal, Item, Plan
 
@@ -37,6 +38,11 @@ def _paragraph(content: str) -> dict:
 def _balance_callout(week: dict, index: int) -> dict:
     label = week["label"]
     icon = {"Balanced": "🟢", "Stretched": "🟡", "Burnout risk": "🔴"}.get(label, "🔴")
+    color = {
+        "Balanced": "green_background",
+        "Stretched": "yellow_background",
+        "Burnout risk": "red_background",
+    }.get(label, "red_background")
     start = date.fromisoformat(week["start"])
     window = "Next 7 days" if index == 0 else f"Week of {start:%b %d}"
     rich_text = [
@@ -50,7 +56,7 @@ def _balance_callout(week: dict, index: int) -> dict:
     ]
     return _block(
         "callout",
-        {"rich_text": rich_text, "icon": {"type": "emoji", "emoji": icon}},
+        {"rich_text": rich_text, "icon": {"type": "emoji", "emoji": icon}, "color": color},
     )
 
 
@@ -90,6 +96,46 @@ def _table(plan: Plan, today: date) -> dict:
     return _block(
         "table",
         {"table_width": 3, "has_column_header": True, "children": rows},
+    )
+
+
+def _image(url: str) -> dict:
+    return _block("image", {"type": "external", "external": {"url": url}})
+
+
+def _progress_bar(done: int, total: int) -> str:
+    filled = min(10, max(0, round(done / total * 10))) if total else 0
+    return "█" * filled + "░" * (10 - filled)
+
+
+def _semester_glance(plan: Plan, items: list[Item], today: date) -> dict:
+    completed = sum(item.status == "Done" for item in items)
+    lines = [f"Deadlines done  {_progress_bar(completed, len(items))} {completed}/{len(items)}"]
+    finals = [
+        item
+        for item in items
+        if item.type == "Exam" and "final" in item.title.lower() and item.status != "Done" and item.due >= today
+    ]
+    if finals:
+        first_final = min(finals, key=lambda item: item.due)
+        lines.append(f"Days until first final  🗓️ {(first_final.due - today).days}")
+    end = today + timedelta(days=7)
+    life_hours = round(
+        sum(
+            session.hours
+            for session in plan.sessions
+            if session.kind == "Life" and today <= session.start.date() < end
+        ),
+        1,
+    )
+    lines.append(f"Life time protected this week  🌱 {life_hours:g}h")
+    return _block(
+        "callout",
+        {
+            "rich_text": _rich_text("\n".join(lines)),
+            "icon": {"type": "emoji", "emoji": "📈"},
+            "color": "gray_background",
+        },
     )
 
 
@@ -191,8 +237,18 @@ def dashboard_blocks(
         _paragraph(f"Study hard, live fully. Updated {today:%a %b %d, %Y}."),
         _heading(2, "⚖️ Balance Score"),
         _balance_columns(plan),
+        _image(balance_chart(plan.weeks)),
         _heading(2, "📅 Next 7 days"),
         _table(plan, today),
+        _block(
+            "column_list",
+            {
+                "children": [
+                    _block("column", {"children": [_image(week_hours_chart(plan, today))]}),
+                    _block("column", {"children": [_image(course_hours_chart(plan, items))]}),
+                ]
+            },
+        ),
         _block(
             "column_list",
             {
@@ -218,6 +274,8 @@ def dashboard_blocks(
                 ]
             },
         ),
+        _heading(2, "📈 Semester at a glance"),
+        _semester_glance(plan, items, today),
         _heading(3, "🗂️ Databases"),
         *_database_links(links),
     ]

@@ -41,6 +41,13 @@ def _plain_cell(cell):
     return "".join(part["text"]["content"] for part in cell)
 
 
+def _walk(blocks):
+    for block in blocks:
+        yield block
+        body = block.get(block["type"], {})
+        yield from _walk(body.get("children", []))
+
+
 def test_dashboard_blocks_cover_balance_schedule_due_dates_and_goals():
     items = [
         Item("Problem Set 7", TODAY, type="Assignment", course="MAT 216"),
@@ -48,6 +55,7 @@ def test_dashboard_blocks_cover_balance_schedule_due_dates_and_goals():
         Item("Last included", TODAY + timedelta(days=13)),
         Item("Outside range", TODAY + timedelta(days=14)),
         Item("Overdue", TODAY - timedelta(days=1)),
+        Item("Final Exam", TODAY + timedelta(days=27), type="Exam"),
     ]
     goals = [
         Goal(
@@ -68,17 +76,30 @@ def test_dashboard_blocks_cover_balance_schedule_due_dates_and_goals():
         {"courses": "courses-id", "assignments": "assignments-id", "goals": "goals-id", "sessions": "sessions-id"},
     )
 
-    balance = blocks[4]["column_list"]["children"]
+    balance = next(
+        block["column_list"]["children"]
+        for block in blocks
+        if block["type"] == "column_list" and len(block["column_list"]["children"]) == 4
+    )
     assert len(balance) == 4
     assert all(column["column"]["children"][0]["type"] == "callout" for column in balance)
-    schedule = blocks[6]["table"]
+    assert [
+        column["column"]["children"][0]["callout"]["color"]
+        for column in balance
+    ] == ["green_background", "yellow_background", "yellow_background", "yellow_background"]
+    schedule = next(block["table"] for block in blocks if block["type"] == "table")
     assert schedule["table_width"] == 3 and schedule["has_column_header"] is True
     assert len(schedule["children"]) == 8
     assert _plain_cell(schedule["children"][0]["table_row"]["cells"][0]) == "Day"
     assert _plain_cell(schedule["children"][1]["table_row"]["cells"][1]) == "18:00 Work on: Homework 3 (90 min)"
     assert _plain_cell(schedule["children"][1]["table_row"]["cells"][2]) == "07:30 Run (45 min)"
 
-    columns = blocks[7]["column_list"]["children"]
+    columns = next(
+        block["column_list"]["children"]
+        for block in blocks
+        if block["type"] == "column_list"
+        and block["column_list"]["children"][0]["column"]["children"][0]["type"] == "heading_3"
+    )
     due_blocks = columns[0]["column"]["children"][1:]
     due_text = [_plain(block["to_do"]) for block in due_blocks]
     assert due_text == [
@@ -89,6 +110,22 @@ def test_dashboard_blocks_cover_balance_schedule_due_dates_and_goals():
     goal_text = [_plain(block["bulleted_list_item"]) for block in goal_blocks]
     assert "🏃 Half-marathon training · 3x a week, 45 min, mornings · City Half" in goal_text
     assert "📖 Read for fun · 5x a week, 30 min, evenings (paused)" in goal_text
+
+    image_blocks = [block for block in _walk(blocks) if block["type"] == "image"]
+    assert len(image_blocks) == 3
+    assert all(block["image"]["type"] == "external" for block in image_blocks)
+    glance = next(
+        block["callout"]
+        for block in _walk(blocks)
+        if block["type"] == "callout" and "Deadlines done" in _plain(block["callout"])
+    )
+    glance_text = _plain(glance)
+    assert glance["color"] == "gray_background"
+    assert "1/6" in glance_text
+    assert "Days until first final  🗓️ 27" in glance_text
+    assert "Life time protected this week  🌱 0.8h" in glance_text
+    deadline_line = next(line for line in glance_text.splitlines() if line.startswith("Deadlines done"))
+    assert len(deadline_line.split()[2]) == 10
 
 
 def test_dashboard_refresh_replaces_blocks_and_respects_anchor_or_end(tmp_path):
