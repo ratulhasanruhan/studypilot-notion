@@ -18,6 +18,7 @@ class Digest:
     life: list[Session] = field(default_factory=list)
     light_week: bool = False
     life_stats: dict = field(default_factory=dict)
+    balance: dict = field(default_factory=dict)
 
     @property
     def life_hours(self) -> float:
@@ -33,6 +34,9 @@ class Digest:
 
     def to_markdown(self) -> str:
         lines = [f"# {self.title}", ""]
+        if self.balance:
+            b = self.balance
+            lines += [f"**Balance score: {b['score']}/100 ({b['label']})** - {b['tip']}", ""]
         lines.append("## Due this week")
         lines += [f"- {i.due:%a %b %d} - {i.title} ({i.type}{', ' + i.course if i.course else ''})" for i in self.due_this_week] or ["- Nothing due"]
         lines += ["", "## Overdue"]
@@ -63,6 +67,7 @@ class Digest:
             "life_hours": self.life_hours,
             "light_week": self.light_week,
             "life_stats": self.life_stats,
+            "balance": self.balance,
             "markdown": self.to_markdown(),
         }
 
@@ -79,6 +84,7 @@ def build_digest(items: list[Item], plan: Plan, today: date, life_stats: dict | 
         life=[s for s in plan.sessions if s.kind == "Life" and today <= s.start.date() < end],
         light_week=week in plan.light_weeks,
         life_stats=life_stats or {},
+        balance=plan.weeks[0] if plan.weeks else {},
     )
 
 
@@ -101,7 +107,12 @@ def digest_blocks(d: Digest) -> list[dict]:
     def callout(t, emoji):
         return {"object": "block", "type": "callout", "callout": {"rich_text": _text(t), "icon": {"type": "emoji", "emoji": emoji}}}
 
-    blocks = [
+    blocks = []
+    if d.balance:
+        b = d.balance
+        icon = {"Balanced": "\U0001F7E2", "Stretched": "\U0001F7E1"}.get(b["label"], "\U0001F534")
+        blocks.append(callout(f"Balance score {b['score']}/100 - {b['label']}. {b['tip']}", icon))
+    blocks += [
         callout(
             f"{len(d.due_this_week)} due this week - {len(d.overdue)} overdue - {d.total_hours}h study + {d.life_hours}h life planned",
             "\U0001F9ED",

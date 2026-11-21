@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import random
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, time, timedelta
@@ -134,6 +135,24 @@ TEMPLATES: dict[str, Template] = {t.key: t for t in [
 ]}
 
 BALANCED_DEFAULTS = ["reading", "hiking", "meditation", "friends"]
+IDEAS = [
+    ("🌄", "Sunrise hilltop hike", "Outdoors", 3, "Morning"),
+    ("☕", "New café + 30 pages of a book", "Reading", 1.5, "Afternoon"),
+    ("🏃", "5 km run by the lake", "Fitness", 0.75, "Morning"),
+    ("🍜", "Cook a dish from another country", "Creative", 1.5, "Evening"),
+    ("📷", "Photo walk: find 10 interesting doors", "Creative", 1, "Afternoon"),
+    ("🎲", "Board game night with friends", "Social", 2, "Evening"),
+    ("🖼️", "Visit a museum or gallery", "Creative", 2, "Afternoon"),
+    ("🚴", "Cycle somewhere you've never been", "Fitness", 1.5, "Morning"),
+    ("🤝", "Volunteer for an hour", "Social", 1, "Afternoon"),
+    ("✏️", "Sketch the view from a rooftop", "Creative", 1, "Evening"),
+    ("🏊", "Swim 20 laps", "Fitness", 1, "Morning"),
+    ("📞", "Call an old friend and go for a walk", "Social", 1, "Evening"),
+    ("🌅", "Watch the sunset somewhere new", "Outdoors", 1, "Evening"),
+    ("🎸", "Learn 3 chords on a guitar", "Creative", 0.75, "Evening"),
+    ("🧺", "Picnic in the park", "Social", 2, "Afternoon"),
+    ("🔭", "Stargazing away from city lights", "Outdoors", 1.5, "Evening"),
+]
 
 
 def books_for(interests: str) -> list[str]:
@@ -271,6 +290,59 @@ def plan_life(goals: list[Goal], today: date, study_plan: Plan, items: list[Item
                                         kind="Life", label=f"{emoji} {label}", goal_notion_id=g.notion_id))
     sessions.sort(key=lambda s: s.start)
     return sessions, light
+
+
+def surprise(
+    plan: Plan,
+    today: date,
+    cfg: LifeConfig,
+    tz=None,
+    rng: random.Random | None = None,
+    interests: str = "",
+) -> dict | None:
+    """Choose a free time slot and a matching micro-adventure."""
+    rng = rng or random.Random()
+    matched_categories = {TEMPLATES[key].category for key in match_templates(interests)}
+    now = datetime.now(tz)
+    study_hours = plan.hours_by_day("Study")
+    candidates = []
+    weights = []
+    for offset in range(7):
+        day = today + timedelta(days=offset)
+        day_study = study_hours.get(day, 0.0)
+        for slot in ("Morning", "Afternoon", "Evening"):
+            start = datetime.combine(day, cfg.slot(slot), tzinfo=tz)
+            if day == today and start <= now:
+                continue
+            for emoji, title, category, hours, preferred_time in IDEAS:
+                if hours > 0.5 and day_study >= cfg.daily_cap:
+                    continue
+                end = start + timedelta(hours=hours)
+                if any(start < session.end and end > session.start for session in plan.sessions):
+                    continue
+                candidates.append((emoji, title, category, hours, start, end, slot))
+                weight = 3 if preferred_time == slot else 1
+                if category in matched_categories:
+                    weight *= 3
+                if day.weekday() >= 5:
+                    weight *= 2
+                weights.append(weight)
+    if not candidates:
+        return None
+    emoji, title, category, hours, start, end, slot = rng.choices(candidates, weights=weights, k=1)[0]
+    week_label = plan.weeks[0]["label"] if plan.weeks else None
+    why = f"You're free {start:%A} {slot.lower()}"
+    if week_label:
+        why += f", and next week is {week_label}"
+    return {
+        "emoji": emoji,
+        "title": title,
+        "category": category,
+        "hours": hours,
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "why": why + ".",
+    }
 
 
 def _spread(days: list[int], n: int) -> list[int]:

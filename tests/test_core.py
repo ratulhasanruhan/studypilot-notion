@@ -76,6 +76,7 @@ def test_web_demo_flow(monkeypatch):
     assert c.post("/api/import", json={"items": items}).json()["created"]
     plan = c.post("/api/plan", json={"today": "2026-10-01"}).json()
     assert plan["sessions"]
+    assert len(plan["weeks"]) == 4 and 0 <= plan["weeks"][0]["score"] <= 100
     sug = c.post("/api/suggest", json={"interests": "hiking and sci-fi books", "today": "2026-10-01"}).json()["suggestions"]
     assert sug[0]["template"] == "hiking"
     g = c.post("/api/goals", json={"template": "hiking"}).json()

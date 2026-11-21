@@ -10,6 +10,7 @@ class FakeNotion:
     def __init__(self):
         self.databases: dict[str, dict] = {}
         self.pages: dict[str, dict] = {}
+        self.children: dict[str, list[dict]] = {}
         self._ids = itertools.count(1)
 
     def _id(self) -> str:
@@ -21,6 +22,7 @@ class FakeNotion:
     def create_database(self, parent_page_id, title, properties, icon=None):
         db = {"id": self._id(), "title": title, "parent": parent_page_id, "properties": properties}
         self.databases[db["id"]] = db
+        self.children.setdefault(parent_page_id, [])
         return db
 
     def get_database(self, database_id):
@@ -61,8 +63,30 @@ class FakeNotion:
             page["archived"] = archived
         return page
 
-    def append_children(self, block_id, children):
-        self.pages[block_id]["children"].extend(children)
+    def append_children(self, block_id, children, after=None):
+        target = self.pages[block_id]["children"] if block_id in self.pages else self.children.setdefault(block_id, [])
+        ids = []
+        for child in children:
+            block = dict(child)
+            block["id"] = self._id()
+            if after:
+                position = next((i for i, existing in enumerate(target) if existing.get("id") == after), None)
+                if position is None:
+                    raise ValueError(f"No block found for after anchor {after!r}")
+                target.insert(position + 1, block)
+            else:
+                target.append(block)
+            ids.append(block["id"])
+            after = block["id"]
+        return ids
+
+    def delete_block(self, block_id):
+        for children in [*self.children.values(), *(page["children"] for page in self.pages.values())]:
+            for index, child in enumerate(children):
+                if child.get("id") == block_id:
+                    del children[index]
+                    return {"id": block_id, "archived": True}
+        raise ValueError(f"No block found with id {block_id!r}")
 
     def rows(self, database_id):
         return self.query_database(database_id)

@@ -28,7 +28,7 @@ def sessions(assignments_db: str) -> dict:
         "When": {"date": {}},
         "Hours": {"number": {"format": "number"}},
         "Done": {"checkbox": {}},
-        "Planned by": {"select": {"options": [{"name": "StudyPilot"}, {"name": "Me"}]}},
+        "Planned by": {"select": {"options": [{"name": "StudyPilot"}, {"name": "Surprise"}, {"name": "Me"}]}},
     }
 
 

@@ -4,16 +4,20 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import asdict, dataclass
+import random
+from dataclasses import asdict, dataclass, field
 from datetime import date, datetime, time
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from . import schema
+from .balance import weekly
+from .dashboard import dashboard_blocks
 from .digest import Digest, build_digest, digest_blocks
-from .life import DAY_NAMES, TEMPLATES, LifeConfig, plan_life, suggest
+from .life import DAY_NAMES, TEMPLATES, LifeConfig, plan_life, suggest, surprise as choose_surprise
 from .models import Goal, Item, Plan
 from .planner import PlannerConfig, plan_sessions
+from .syllabus import parse_syllabus
 
 DEFAULT_CONFIG = Path(os.environ.get("STUDYPILOT_CONFIG", ".studypilot.json"))
 
@@ -29,6 +33,8 @@ class Config:
     daily_cap: float = 3.0
     block_hours: float = 1.5
     start_hour: int = 18
+    dashboard_after: str = ""
+    dashboard_blocks: list[str] = field(default_factory=list)
 
     @classmethod
     def load(cls, path: Path = DEFAULT_CONFIG) -> "Config":
@@ -260,6 +266,33 @@ class StudyPilot:
         next_week = sum(h for d, h in study.hours_by_day().items() if (d - today).days < 7)
         return suggest(interests, round(next_week, 1), self.list_goals(), self.config.daily_cap)
 
+    def surprise(self, interests: str = "", today: date | None = None, seed: int | None = None) -> dict | None:
+        today = today or self.today()
+        return choose_surprise(
+            self.preview_plan(today),
+            today,
+            self.config.life(),
+            tz=self.config.tz,
+            rng=random.Random(seed),
+            interests=interests,
+        )
+
+    def add_surprise(self, idea: dict) -> str:
+        self._require()
+        self.ensure_life()
+        page = self.notion.create_page(
+            {"database_id": self.config.sessions_db},
+            {
+                "Name": {"title": _text(f"🎲 {idea['emoji']} {idea['title']}")},
+                "When": {"date": {"start": idea["start"], "end": idea["end"]}},
+                "Hours": {"number": idea["hours"]},
+                "Done": {"checkbox": False},
+                "Planned by": {"select": {"name": "Surprise"}},
+                "Kind": {"select": {"name": "Life"}},
+            },
+        )
+        return page["id"]
+
     # ---- planning ----------------------------------------------------------
     def _sessions(self) -> list[dict]:
         return list(self.notion.query_database(self.config.sessions_db))
@@ -270,6 +303,7 @@ class StudyPilot:
         life, light = plan_life(self.list_goals(), today, plan, items, self.config.life(), tz=self.config.tz)
         plan.sessions = sorted(plan.sessions + life, key=lambda s: s.start)
         plan.light_weeks = sorted(light)
+        plan.weeks = weekly(plan, items, today, self.config.daily_cap)
         return plan
 
     def replan(self, today: date | None = None) -> Plan:
@@ -340,3 +374,76 @@ class StudyPilot:
             )
             url = page.get("url")
         return d, url
+
+    def dashboard(self, today: date | None = None, after: str | None = None) -> list[str]:
+        self._require()
+        today = today or self.today()
+        if after is not None:
+            self.config.dashboard_after = after
+        plan = self.preview_plan(today)
+        blocks = dashboard_blocks(
+            plan,
+            self.list_items(),
+            self.list_goals(),
+            today,
+            {
+                "courses": self.config.courses_db,
+                "assignments": self.config.assignments_db,
+                "goals": self.config.goals_db,
+                "sessions": self.config.sessions_db,
+                "app": os.environ.get("STUDYPILOT_APP_URL"),
+                "repo": "https://github.com/ratulhasanruhan/studypilot-notion",
+            },
+        )
+        for block_id in self.config.dashboard_blocks:
+            self.notion.delete_block(block_id)
+        anchor = self.config.dashboard_after
+        ids = self.notion.append_children(
+            self.config.parent_page_id,
+            blocks,
+            after=anchor if anchor and anchor != "top" else None,
+        )
+        self.config.dashboard_blocks = ids
+        self.config.save(self.config_path)
+        return ids
+
+    def autopilot(
+        self,
+        text: str,
+        interests: str,
+        today: date | None = None,
+        course: str | None = None,
+        year: int | None = None,
+        goals: int = 3,
+    ) -> dict:
+        today = today or self.today()
+        parsed = parse_syllabus(text, year=year or today.year, course=course)
+        imported = self.import_items(parsed)
+        existing_goals = self.list_goals()
+        active_count = sum(goal.status == "Active" for goal in existing_goals)
+        goals_added = []
+        if active_count < goals:
+            existing_templates = {goal.template for goal in existing_goals}
+            for suggestion in self.suggest(interests, today):
+                template = suggestion["template"]
+                if template in existing_templates:
+                    continue
+                goal = self.add_goal(template, suggestion.get("target", ""), today)
+                existing_templates.add(template)
+                goals_added.append(goal.title)
+                if len(goals_added) >= goals:
+                    break
+        plan = self.replan(today)
+        try:
+            self.dashboard(today)
+            dashboard_updated = True
+        except Exception:
+            dashboard_updated = False
+        return {
+            "found": len(parsed),
+            "created": len(imported["created"]),
+            "skipped": len(imported["skipped"]),
+            "goals_added": goals_added,
+            "plan": plan.to_dict(),
+            "dashboard": dashboard_updated,
+        }

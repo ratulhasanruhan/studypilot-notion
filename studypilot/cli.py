@@ -1,4 +1,4 @@
-"""Command-line interface: `studypilot setup|import|plan|digest|serve`."""
+"""Command-line interface for StudyPilot setup, planning and publishing."""
 
 from __future__ import annotations
 
@@ -47,7 +47,11 @@ def cmd_plan(args) -> None:
         print(f"  {s.start:%a %b %d %H:%M}  {s.hours:>4}h  {s.kind:<5}  {s.title}")
     for title, h in plan.at_risk.items():
         print(f"  AT RISK: {title} needs {h}h more than fits before its deadline")
-    print(f"{len(plan.sessions)} sessions {'previewed' if args.dry_run else 'written to Notion'}")
+    print(f"{len(plan.sessions)} sessions {'previewed' if args.dry_run else 'written to Notion'}\n")
+    print("Balance score")
+    for w in plan.weeks:
+        print(f"  Week of {date.fromisoformat(w['start']):%b %d}: {w['score']:>3}/100 {w['label']:<12} "
+              f"study {w['study_hours']}h, life {w['life_hours']}h - {w['tip']}")
 
 
 def cmd_digest(args) -> None:
@@ -56,6 +60,30 @@ def cmd_digest(args) -> None:
     print(d.to_markdown())
     if url:
         print(f"\nPublished: {url}")
+
+
+def cmd_dashboard(args) -> None:
+    pilot = _pilot()
+    today = date.fromisoformat(args.today) if args.today else None
+    ids = pilot.dashboard(today, args.after)
+    print(f"Dashboard updated: {len(ids)} blocks")
+    page = pilot.notion.get_page(pilot.config.parent_page_id)
+    if page.get("url"):
+        print(page["url"])
+
+
+def cmd_surprise(args) -> None:
+    pilot = _pilot()
+    today = date.fromisoformat(args.today) if args.today else None
+    idea = pilot.surprise(args.interests or "", today)
+    if not idea:
+        print("No free slot for a micro-adventure this week.")
+        return
+    print(f"{idea['emoji']} {idea['title']} · {idea['start']} · {idea['hours']}h")
+    print(idea["why"])
+    if args.add:
+        pilot.add_surprise(idea)
+        print("Added to your Schedule.")
 
 
 def cmd_suggest(args) -> None:
@@ -118,6 +146,17 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--today", help="YYYY-MM-DD (default: today)")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(func=cmd_digest)
+
+    s = sub.add_parser("dashboard", help="refresh the StudyPilot dashboard on its parent page")
+    s.add_argument("--today", help="YYYY-MM-DD (default: today)")
+    s.add_argument("--after", help="insert after this block ID")
+    s.set_defaults(func=cmd_dashboard)
+
+    s = sub.add_parser("surprise", help="find a free slot for a micro-adventure")
+    s.add_argument("--interests", default="", help="interests to personalize the idea")
+    s.add_argument("--add", action="store_true", help="add the idea to your Schedule")
+    s.add_argument("--today", help="YYYY-MM-DD (default: today)")
+    s.set_defaults(func=cmd_surprise)
 
     s = sub.add_parser("suggest", help="suggest life activities (hiking, running, reading...) that fit your load")
     s.add_argument("interests", help='e.g. "hiking, marathon, sci-fi books"')

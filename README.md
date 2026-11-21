@@ -1,137 +1,93 @@
-# StudyPilot 🧭
+# 🧭 StudyPilot
 
-**Your student life on autopilot, inside Notion Student OS.** Paste a syllabus and StudyPilot plans your study time. Tell it what you enjoy (hiking, running a half marathon, sci-fi books, guitar, friends) and it suggests activities that fit your workload, schedules them around your study blocks, and scales them down in exam weeks.
+**Study hard, live fully.** StudyPilot plans your study time *and* your life outside class, inside your Notion Student OS.
 
-Built for the **Cognition × Notion Student OS Hackathon**, end to end with Devin.
+Built with Devin for the **Cognition × Notion Student OS Hackathon**.
+
+| | |
+|---|---|
+| 🌐 **Try the web app** | _coming soon_ ([deploy your own](#deploy-your-own)) |
+| 📒 **See it in Notion** | [Student Life HQ (live example)](https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f) |
+| 💻 **Code** | you're here |
 
 ![StudyPilot web app](docs/screenshot.png)
 
-## The problem
+## What it does
 
-Every semester starts the same way: five syllabi, fifty deadlines, and an empty planner. Students copy dates into Notion by hand (or don't), then discover the midterm three days out. Knowing *when* things are due is not the same as knowing *when to work on them*.
+1. **📚 Paste your syllabus.** StudyPilot finds every deadline and books study time before each one, never more than your daily limit.
+2. **🌱 Pick what you love.** Hiking, running, reading, music, friends... It suggests a plan that fits your workload and gives it real time slots that don't clash with study.
+3. **⚖️ Check your Balance Score.** Every week gets a score out of 100 (Balanced, Stretched or Burnout risk) and one simple tip. In exam weeks, your activities get lighter instead of disappearing.
 
-And when the semester gets busy, everything else goes first: the run, the hike, the novel on the nightstand, time with friends. Most planners only track coursework, so the things that keep students healthy and happy never get a slot.
+Everything is saved in normal Notion databases. Tick **Done** in Notion and the next plan adapts.
 
-## What StudyPilot does
+## Why it's different
 
-| Step | What happens in Notion |
+| Normal planner | StudyPilot |
 |---|---|
-| **1. Connect** | Creates four linked databases under any page you choose: **Courses**, **Assignments & Exams**, **Life Goals**, and a **Schedule** that holds study blocks and life activities (`Kind` = Study / Life). Older setups are upgraded automatically. |
-| **2. Import a syllabus** | Paste any syllabus text. StudyPilot finds every dated deadline (`Sep 15`, `9/26`, `2026-10-14`, `Friday, September 18`, `3rd December`…), classifies it (Exam, Project, Quiz, Lab, Reading, Assignment), estimates effort, links it to its course, and skips duplicates on re-import. |
-| **3. Autopilot plan** | Schedules study blocks before each deadline: earliest deadline first, spread across the least-loaded days in a per-type lead window (exams 10 days, projects 14…), never exceeding your daily hours cap. Deadlines that can't fit are flagged **at risk**. Re-plan anytime: sessions you tick **Done** count as progress, and future unfinished ones are rescheduled. |
-| **4. Life beyond study** | Enter your interests. StudyPilot suggests activities from 18 templates (half-marathon training, Couch to 5K, weekend hikes, read for fun with a book list, gym, mindfulness, music, language, friends & clubs, volunteering…), sized to next week's study load. Add one and it becomes a **Life Goal** in Notion. The planner then puts its sessions in free morning/afternoon/evening slots that don't clash with study. Plans progress (the Saturday long run grows 1.5 km a week). In exam or heavy weeks each goal runs about half as often and long activities shrink (a hike becomes a 1.5 h nature walk). Pause, resume or finish goals at any time. |
-| **5. Weekly digest** | Publishes a "Week of …" Notion page: due this week (as to-dos), overdue items, study hours per day, at-risk warnings, this week's life activities (as to-dos), and how many you completed last week. |
+| Lists deadlines | Turns them into a day-by-day study plan |
+| Only school | Also hikes, runs, books, hobbies and friends |
+| Same plan every week | Exam weeks get lighter automatically |
+| You notice overload too late | Balance Score warns you weeks ahead |
 
-Everything lives in normal Notion databases, so it works with Notion's calendar, board and timeline views, and with the rest of your Student OS.
+## What you get in Notion
 
-## Quick start
+- **Courses** and **Assignments & Exams**: every deadline with type, date and estimated hours
+- **Life Goals**: your activities, how often, and what you're aiming for
+- **Schedule**: every study block and activity, with a Done checkbox
+- **Dashboard** on your page: Balance Score, next 7 days, due soon, life goals
+- **Weekly digest** page: what's due, what's overdue, and this week's plan
+
+## Run it in 1 minute
 
 ```bash
 git clone https://github.com/ratulhasanruhan/studypilot-notion && cd studypilot-notion
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
+STUDYPILOT_DEMO=1 studypilot serve        # open http://127.0.0.1:8000 (demo data, no Notion needed)
 ```
 
-### Try it without Notion (demo mode)
+### Connect your own Notion
+
+1. Create an integration at [notion.so/profile/integrations](https://www.notion.so/profile/integrations) and copy its secret.
+2. Open your Notion page → **•••** → **Connections** → add the integration.
+3. Run `export NOTION_TOKEN=...` and `studypilot serve`, then paste your page link in step 1 of the app.
+
+Prefer the terminal?
 
 ```bash
-STUDYPILOT_DEMO=1 studypilot serve      # http://127.0.0.1:8000
-```
-
-### Connect your Notion
-
-1. Go to <https://www.notion.so/profile/integrations> → **New integration** (Internal) → copy the secret.
-2. In Notion, open the page that should hold your Student OS → **•••** → **Connections** → add your integration.
-3. Run:
-
-```bash
-export NOTION_TOKEN=ntn_...
-studypilot serve                        # web app
-# or the CLI:
-studypilot setup "https://www.notion.so/.../Student-OS-<id>" --timezone Asia/Dhaka
-studypilot import examples/cs101_syllabus.txt --year 2026
+studypilot setup "<your Notion page link>" --timezone Asia/Dhaka
+studypilot import examples/cse220_data_structures.txt --year 2026
 studypilot suggest "hiking, half marathon, sci-fi books"
 studypilot goal add hiking
-studypilot goal add reading --target "Project Hail Mary - Andy Weir"
-studypilot goal add half-marathon --days Tue,Thu,Sat
-studypilot goals                        # list; `goal pause|resume|done <name>`
-studypilot plan                         # writes study blocks + life activities to Schedule
-studypilot digest                       # publishes this week's digest page
+studypilot plan          # writes your schedule, prints the Balance Score
+studypilot dashboard     # refreshes the dashboard on your Notion page
+studypilot digest        # publishes this week's digest page
 ```
 
-Every command takes `--dry-run`. `plan` and `digest` take `--today YYYY-MM-DD` for demos.
+## Deploy your own
 
-## How it works
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fratulhasanruhan%2Fstudypilot-notion)
 
-```
-syllabus text ──► syllabus.py (regex date finder + dateutil + keyword classifier)
-                       │ Items
-                       ▼
-                 core.py ──► Notion API (Courses / Assignments & Exams / Life Goals / Schedule)
-                       │ Items + Goals from Notion, Done hours
-                       ▼
-                 planner.py (EDF, load-balanced, daily cap) ──► study blocks
-                 life.py (interest matching, free-slot scheduling, light exam weeks) ──► life activities ──► Schedule
-                       ▼
-                 digest.py ──► "Week of …" Notion page
-```
+Without a `NOTION_TOKEN` it runs in demo mode. Add `NOTION_TOKEN` in Vercel's environment variables to use your own workspace.
 
-| File | Purpose |
+## How it's built
+
+Python, FastAPI, the Notion API and plain HTML/JS. The main parts:
+
+| File | Job |
 |---|---|
-| `studypilot/syllabus.py` | Deadline extraction and classification |
-| `studypilot/planner.py` | Study-session scheduler |
-| `studypilot/life.py` | Activity templates, suggestions, life scheduling around study |
-| `studypilot/digest.py` | Weekly digest + Notion block rendering |
-| `studypilot/core.py` | Orchestration, idempotent import, re-planning |
-| `studypilot/notion.py` | Small Notion REST client with retry on rate limits |
-| `studypilot/web.py`, `static/index.html` | FastAPI app + single-page UI |
-| `studypilot/fake_notion.py` | In-memory Notion for tests and demo mode |
+| `syllabus.py` | Finds and classifies deadlines |
+| `planner.py` | Schedules study blocks |
+| `life.py` | Suggests and schedules activities (18 templates) |
+| `balance.py` | Weekly Balance Score and tips |
+| `dashboard.py`, `digest.py` | Notion dashboard and weekly page |
+| `core.py`, `notion.py` | Notion setup, sync and re-planning |
+| `web.py`, `static/index.html` | Web app |
 
-Config (database IDs, timezone, daily cap) is saved to `.studypilot.json`.
-
-## Tests
-
-```bash
-pytest
-```
-
-CI runs the suite on Python 3.10 and 3.12.
-
-## Example run (live Notion workspace)
-
-Two sample syllabi in [`examples/`](examples) plus four life goals, run on a real Student OS page on Nov 21, 2026:
-
-```text
-$ studypilot import examples/cse220_data_structures.txt --year 2026   # Created 8
-$ studypilot import examples/mat216_linear_algebra.txt --year 2026    # Created 6
-$ studypilot suggest "hiking, run a half marathon, sci-fi books, hang out with friends"
-🏃 Half-marathon training  [half-marathon]  3x/week, 2.25h  Morning Tue/Thu/Sat
-🥾 Weekend hikes  [hiking]  1x/week, 3.5h  Morning Sat/Sun
-📖 Read for fun  [reading]  5x/week, 2.5h  Evening Mon/Tue/Wed/Thu/Sun
-    Books: Project Hail Mary - Andy Weir; Dune - Frank Herbert; The Martian - Andy Weir; ...
-🤝 Friends & clubs  [friends]  1x/week, 2.0h  Evening Fri
-🧘 Mindfulness  [meditation]  5x/week, 1.25h  Morning Mon/Tue/Wed/Thu/Fri
-$ studypilot goal add hiking && studypilot goal add half-marathon && \
-  studypilot goal add reading --target "Project Hail Mary - Andy Weir" && studypilot goal add meditation
-$ studypilot plan                     # study blocks + life activities written to Schedule
-$ studypilot digest
-# Week of Nov 21, 2026
-## Due this week
-- Tue Nov 24 - Read Chapter 9 (Heaps) (Reading, CSE 220)
-- Wed Nov 25 - Problem Set 7 (eigenvalues) (Assignment, MAT 216)
-## Study plan (12.5h)
-- Sat Nov 21: 2.5h ... Fri Nov 27: 1.5h
-## Life beyond study
-- Mon Nov 23 07:00 - 🧘 Meditate 15 min
-- Tue Nov 24 07:15 - 🏃 Easy run: 4.5 km
-- Tue Nov 24 21:00 - 📖 Read: Project Hail Mary - Andy Weir (30 min)
-...
-```
+Tests: `pytest` (run on every push by GitHub Actions).
 
 ## Built with Devin
 
-StudyPilot was designed, coded, tested and connected to a live Notion workspace by Devin (Cognition) from a single chat request. See [SUBMISSION.md](SUBMISSION.md) for the hackathon write-up.
+Devin (by Cognition) designed, coded, tested and deployed StudyPilot, and set up the live Notion workspace, from chat. See [SUBMISSION.md](SUBMISSION.md) for the hackathon write-up.
 
-## License
-
-MIT
+MIT license

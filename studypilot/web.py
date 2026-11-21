@@ -26,12 +26,24 @@ def pilot() -> StudyPilot:
         if os.environ.get("STUDYPILOT_DEMO") or not os.environ.get("NOTION_TOKEN"):
             from .fake_notion import FakeNotion
 
-            _pilot = StudyPilot(FakeNotion(), Config(), config_path=Path(os.devnull))
+            _pilot = StudyPilot(
+                FakeNotion(),
+                Config(),
+                config_path=Path(os.environ.get("STUDYPILOT_CONFIG", os.devnull)),
+            )
             _pilot.demo = True
         else:
             _pilot = StudyPilot(NotionClient())
             _pilot.demo = False
     return _pilot
+
+
+@app.middleware("http")
+async def bootstrap_demo(request, call_next):
+    p = pilot()
+    if request.url.path != "/api/setup" and p.demo and not p.config.ready:
+        p.bootstrap("demo-page")
+    return await call_next(request)
 
 
 class SetupIn(BaseModel):
@@ -53,6 +65,26 @@ class ImportIn(BaseModel):
 class SuggestIn(BaseModel):
     interests: str = ""
     today: date | None = None
+
+
+class SurpriseIn(BaseModel):
+    interests: str = ""
+    today: date | None = None
+    seed: int | None = None
+
+
+class SurpriseAddIn(BaseModel):
+    idea: dict
+
+
+class AutopilotIn(BaseModel):
+    text: str
+    interests: str = ""
+    today: date | None = None
+    daily_cap: float | None = None
+    course: str | None = None
+    year: int | None = None
+    goals: int = 3
 
 
 class GoalIn(BaseModel):
@@ -136,6 +168,39 @@ def digest(body: DayIn):
         return {**d.to_dict(), "url": url}
 
     return _guard(run)
+
+
+@app.post("/api/dashboard")
+def dashboard(body: DayIn):
+    ids = _guard(lambda: pilot().dashboard(body.today))
+    return {"blocks": len(ids)}
+
+
+@app.post("/api/surprise")
+def surprise(body: SurpriseIn):
+    idea = _guard(lambda: pilot().surprise(body.interests, body.today, body.seed))
+    return {"idea": idea}
+
+
+@app.post("/api/surprise/add")
+def add_surprise(body: SurpriseAddIn):
+    _guard(lambda: pilot().add_surprise(body.idea))
+    return {"ok": True}
+
+
+@app.post("/api/autopilot")
+def autopilot(body: AutopilotIn):
+    _apply(body)
+    return _guard(
+        lambda: pilot().autopilot(
+            body.text,
+            body.interests,
+            body.today,
+            course=body.course,
+            year=body.year,
+            goals=body.goals,
+        )
+    )
 
 
 @app.post("/api/suggest")

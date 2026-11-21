@@ -115,6 +115,17 @@ class NotionClient:
             body["archived"] = archived
         return self.request("PATCH", f"/pages/{page_id}", body)
 
-    def append_children(self, block_id: str, children: list) -> None:
+    def append_children(self, block_id: str, children: list, after: str | None = None) -> list[str]:
+        ids = []
         for i in range(0, len(children), 100):
-            self.request("PATCH", f"/blocks/{block_id}/children", {"children": children[i : i + 100]})
+            body = {"children": children[i : i + 100]}
+            if after:
+                body["after"] = after
+            response = self.request("PATCH", f"/blocks/{block_id}/children", body)
+            ids.extend(block["id"] for block in response.get("results", []))
+            if ids:
+                after = ids[-1]
+        return ids
+
+    def delete_block(self, block_id: str) -> dict:
+        return self.request("PATCH", f"/blocks/{block_id}", {"archived": True})

@@ -119,6 +119,7 @@ class Plan:
     sessions: list[Session] = field(default_factory=list)
     at_risk: dict[str, float] = field(default_factory=dict)
     light_weeks: list[date] = field(default_factory=list)
+    weeks: list[dict] = field(default_factory=list)
 
     def hours_by_day(self, kind: str | None = None) -> dict[date, float]:
         out: dict[date, float] = {}
@@ -136,4 +137,5 @@ class Plan:
             "study_by_day": {d.isoformat(): h for d, h in self.hours_by_day("Study").items()},
             "life_by_day": {d.isoformat(): h for d, h in self.hours_by_day("Life").items()},
             "light_weeks": [d.isoformat() for d in self.light_weeks],
+            "weeks": self.weeks,
         }

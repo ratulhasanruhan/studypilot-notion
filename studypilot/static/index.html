@@ -3,125 +3,145 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StudyPilot - Syllabus to Notion autopilot</title>
+<title>StudyPilot - study hard, live fully</title>
 <style>
-  :root { --bg:#f7f6f3; --card:#fff; --ink:#37352f; --muted:#787774; --line:#e9e9e7; --accent:#2383e2; --ok:#0f7b6c; --warn:#d9730d; --bad:#e03e3e; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; background:var(--bg); color:var(--ink); }
-  header { padding:28px 24px 8px; max-width:1100px; margin:auto; }
-  header h1 { margin:0; font-size:28px; } header p { margin:6px 0 0; color:var(--muted); }
-  .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#fbecdd; color:var(--warn); margin-left:8px; vertical-align:middle; }
-  .badge.live { background:#ddedea; color:var(--ok); }
-  main { max-width:1100px; margin:auto; padding:12px 24px 48px; display:grid; gap:16px; }
+  :root { --bg:#f7f6f3; --card:#fff; --ink:#37352f; --muted:#787774; --line:#e9e9e7; --study:#2383e2; --life:#0f7b6c; --warn:#d9730d; --bad:#e03e3e; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  .wrap { max-width:1120px; margin:auto; padding:0 24px; }
+  header { padding:32px 0 8px; }
+  header h1 { margin:0; font-size:30px; } header .lead { margin:8px 0 0; font-size:17px; color:var(--muted); max-width:760px; line-height:1.45; }
+  .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#fbecdd; color:var(--warn); margin-left:8px; vertical-align:middle; font-weight:500; }
+  .badge.live { background:#ddedea; color:var(--life); }
+  .how { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin:20px 0 4px; }
+  .how div { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:14px; color:var(--muted); line-height:1.4; }
+  .how b { display:block; color:var(--ink); font-size:15px; margin-bottom:2px; }
+  main { display:grid; gap:16px; padding:12px 0 48px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
-  .card h2 { margin:0 0 4px; font-size:17px; } .card .sub { color:var(--muted); font-size:13px; margin:0 0 12px; }
-  .step { display:inline-flex; width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; align-items:center; justify-content:center; margin-right:8px; }
+  .card h2 { margin:0 0 4px; font-size:18px; } .card h3 { margin:0 0 4px; font-size:15px; }
+  .sub { color:var(--muted); font-size:13px; margin:0 0 12px; line-height:1.45; }
+  .step { display:inline-flex; width:24px; height:24px; border-radius:50%; background:var(--ink); color:#fff; font-size:13px; align-items:center; justify-content:center; margin-right:8px; }
   .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   input, textarea { font:inherit; border:1px solid var(--line); border-radius:6px; padding:8px 10px; background:#fff; color:var(--ink); }
-  input { min-width:120px; } input.grow { flex:1; min-width:260px; }
-  textarea { width:100%; min-height:180px; font-family: ui-monospace, Menlo, monospace; font-size:13px; }
-  button { font:inherit; border:0; border-radius:6px; padding:8px 14px; background:var(--accent); color:#fff; cursor:pointer; }
-  button.ghost { background:#efefed; color:var(--ink); } button:disabled { opacity:.5; cursor:wait; }
-  table { width:100%; border-collapse:collapse; font-size:14px; } th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
-  th { color:var(--muted); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
-  .tag { font-size:12px; padding:1px 7px; border-radius:4px; background:#e7f3f8; color:#1f6c9f; }
-  .tag.Exam { background:#fbe4e4; color:var(--bad); } .tag.Project { background:#f4f0f7; color:#6940a5; } .tag.Quiz { background:#fbf3db; color:#956400; } .tag.Reading { background:#ddedea; color:var(--ok); }
-  .msg { font-size:14px; margin-top:10px; } .msg.err { color:var(--bad); } .msg.ok { color:var(--ok); }
-  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:16px; } @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
-  .bars { display:grid; gap:6px; } .bar { display:grid; grid-template-columns:90px 1fr 46px; gap:8px; align-items:center; font-size:13px; }
-  .bar span.fill { display:block; height:12px; background:var(--accent); border-radius:3px; }
-  pre { white-space:pre-wrap; background:#f7f6f3; padding:12px; border-radius:6px; font-size:13px; margin:0; }
-  a { color:var(--accent); }
-  .sugs { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:10px; margin-top:12px; }
-  .sug { border:1px solid var(--line); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:6px; font-size:13px; }
-  .sug b { font-size:15px; } .sug .meta { color:var(--muted); } .sug button { align-self:flex-start; padding:5px 10px; font-size:13px; }
-  .goal { display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); color:var(--ink); font-size:14px; }
-  .goal .st { font-size:12px; padding:1px 7px; border-radius:4px; background:#ddedea; color:var(--ok); } .goal .st.Paused { background:#efefed; color:var(--muted); }
+  input.grow { flex:1; min-width:220px; }
+  textarea { width:100%; min-height:190px; font-family:ui-monospace, Menlo, monospace; font-size:12.5px; }
+  button { font:inherit; border:0; border-radius:6px; padding:8px 14px; background:var(--study); color:#fff; cursor:pointer; }
+  button.big { padding:10px 18px; font-weight:600; } button.ghost { background:#efefed; color:var(--ink); } button:disabled { opacity:.5; cursor:wait; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; } @media (max-width:900px){ .grid2, .how { grid-template-columns:1fr; } }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; } th, td { text-align:left; padding:6px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.03em; }
+  .tag { font-size:11px; padding:1px 6px; border-radius:4px; background:#e7f3f8; color:#1f6c9f; }
+  .tag.Exam { background:#fbe4e4; color:var(--bad); } .tag.Project { background:#f4f0f7; color:#6940a5; } .tag.Quiz { background:#fbf3db; color:#956400; } .tag.Reading { background:#ddedea; color:var(--life); }
+  .msg { font-size:14px; margin-top:10px; } .msg.err { color:var(--bad); } .msg.ok { color:var(--life); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .chip { background:#fff; color:var(--ink); border:1px solid var(--line); border-radius:16px; padding:6px 12px; font-size:14px; }
+  .chip.on { background:#ddedea; border-color:var(--life); color:var(--life); font-weight:500; }
+  .sugs { display:grid; gap:8px; margin-top:12px; }
+  .sug { border:1px solid var(--line); border-radius:8px; padding:10px 12px; display:grid; grid-template-columns:1fr auto; gap:2px 10px; font-size:13px; align-items:center; }
+  .sug b { font-size:14px; } .sug .meta { color:var(--muted); grid-column:1; } .sug button { grid-row:1 / span 3; grid-column:2; padding:6px 10px; font-size:13px; }
+  .goal { display:flex; gap:8px; align-items:center; padding:6px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .goal .st { font-size:11px; padding:1px 7px; border-radius:4px; background:#ddedea; color:var(--life); } .goal .st.Paused { background:#efefed; color:var(--muted); }
   .goal button { padding:3px 8px; font-size:12px; } .goal .sp { flex:1; }
-  .bar span.fill.life { background:#0f7b6c; } .bar .stack { display:flex; } .legend { font-size:12px; color:var(--muted); margin-top:8px; }
-  .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 4px 0 10px; vertical-align:middle; }
+  .scores { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-top:14px; } @media (max-width:900px){ .scores { grid-template-columns:1fr 1fr; } }
+  .score { border:1px solid var(--line); border-radius:10px; padding:12px; font-size:13px; border-top:4px solid var(--life); }
+  .score.Stretched { border-top-color:var(--warn); } .score.Burnout { border-top-color:var(--bad); }
+  .score .n { font-size:28px; font-weight:700; } .score .n small { font-size:13px; color:var(--muted); font-weight:400; }
+  .score .l { font-weight:600; } .score.Stretched .l { color:var(--warn); } .score.Burnout .l { color:var(--bad); } .score.Balanced .l { color:var(--life); }
+  .score .h { color:var(--muted); margin:4px 0; } .score .t { line-height:1.35; }
+  .cal { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; margin-top:14px; }
+  .day { background:#fbfbfa; border:1px solid var(--line); border-radius:8px; padding:8px 6px; min-height:120px; font-size:12px; }
+  .day .dh { font-weight:600; margin-bottom:6px; } .day .dh span { color:var(--muted); font-weight:400; }
+  .blk { border-radius:5px; padding:4px 6px; margin-bottom:4px; line-height:1.3; border-left:3px solid var(--study); background:#e7f3f8; }
+  .blk.Life { border-left-color:var(--life); background:#ddedea; } .blk i { font-style:normal; color:var(--muted); display:block; font-size:11px; }
+  .legend { font-size:12px; color:var(--muted); margin-top:8px; } .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 4px 0 10px; vertical-align:middle; }
+  details { margin-top:10px; font-size:13px; } pre { white-space:pre-wrap; background:#f7f6f3; padding:12px; border-radius:6px; font-size:12px; }
+  a { color:var(--study); }
 </style>
 </head>
 <body>
+<div class="wrap">
 <header>
-  <h1>StudyPilot <span id="mode" class="badge">...</span></h1>
-  <p>Your student life autopilot: deadlines from any syllabus, a realistic study plan, and time for hikes, runs, books and friends, all inside your Notion Student OS.</p>
+  <h1>🧭 StudyPilot <span id="mode" class="badge">...</span></h1>
+  <p class="lead">Study hard, live fully. StudyPilot plans study time before every deadline <em>and</em> makes room for the things you love, like hikes, runs, books and friends. Everything lives in your Notion Student OS.</p>
+  <div class="how">
+    <div><b>📚 1. Add your syllabus</b>It finds every deadline and plans study blocks before each one, never more than your daily limit.</div>
+    <div><b>🌱 2. Pick what you love</b>Hiking, running, reading... It suggests a plan that fits your workload and gives it real time slots.</div>
+    <div><b>⚖️ 3. Check your Balance Score</b>One score per week shows overload early. Exam weeks automatically get lighter activities.</div>
+  </div>
 </header>
 <main>
   <section class="card">
-    <h2><span class="step">1</span>Connect your Student OS</h2>
-    <p class="sub">Paste a Notion page URL that is shared with your integration. StudyPilot creates Courses, Assignments &amp; Exams, Schedule and Life Goals databases there.</p>
+    <h2><span class="step">1</span>Connect Notion</h2>
+    <p class="sub">Paste the link of a Notion page you shared with your integration. StudyPilot adds 4 databases there: Courses, Assignments &amp; Exams, Life Goals and Schedule.</p>
     <div class="row">
       <input id="page" class="grow" placeholder="https://www.notion.so/your-workspace/Student-OS-..." />
-      <input id="tz" placeholder="Timezone" />
+      <input id="tz" placeholder="Timezone" style="width:170px" />
       <button id="setupBtn">Connect</button>
     </div>
     <div id="setupMsg" class="msg"></div>
   </section>
 
-  <section class="card">
-    <h2><span class="step">2</span>Import a syllabus</h2>
-    <p class="sub">Any format: schedules, bullet lists, tables pasted as text. Lines with a date and a deadline word become tasks.</p>
-    <textarea id="syllabus"></textarea>
-    <div class="row" style="margin-top:10px">
-      <input id="course" placeholder="Course (auto)" />
-      <input id="year" type="number" placeholder="Year" style="width:100px" />
-      <button id="parseBtn" class="ghost">Preview deadlines</button>
-      <button id="importBtn" disabled>Add to Notion</button>
-    </div>
-    <div id="parseMsg" class="msg"></div>
-    <table id="items" style="margin-top:10px; display:none"><thead><tr><th>Due</th><th>Task</th><th>Type</th><th>Est. hours</th><th>Course</th></tr></thead><tbody></tbody></table>
-  </section>
-
-  <section class="card">
-    <h2><span class="step">3</span>Life beyond study</h2>
-    <p class="sub">Tell StudyPilot what you enjoy. It suggests activities sized to your study load, adds them to a Life Goals database and schedules them around study blocks, with lighter versions in exam weeks.</p>
-    <div class="row">
-      <input id="interests" class="grow" placeholder="e.g. hiking, run a half marathon, sci-fi books, guitar, friends" value="hiking, half marathon, sci-fi books" />
-      <button id="suggestBtn" class="ghost">Suggest activities</button>
-    </div>
-    <div id="lifeMsg" class="msg"></div>
-    <div id="suggestions" class="sugs"></div>
-    <h3 style="font-size:14px; margin:16px 0 6px">My life goals</h3>
-    <div id="goals" class="sub">None yet.</div>
-  </section>
-
   <div class="grid2">
     <section class="card">
-      <h2><span class="step">4</span>Autopilot plan</h2>
-      <p class="sub">Study blocks before every deadline (earliest first, capped per day) plus your life activities in free slots. Re-run anytime: finished sessions count toward progress.</p>
-      <div class="row">
-        <label>Max hours/day <input id="cap" type="number" step="0.5" value="3" style="width:80px" /></label>
-        <label>Today <input id="today" type="date" /></label>
-        <button id="planBtn">Plan my weeks</button>
+      <h2><span class="step">2</span>Your classes</h2>
+      <p class="sub">Paste a syllabus in any format. Each line with a date and a word like <i>homework</i>, <i>quiz</i> or <i>exam</i> becomes a deadline.</p>
+      <textarea id="syllabus"></textarea>
+      <div class="row" style="margin-top:10px">
+        <input id="course" placeholder="Course (auto)" style="width:140px" />
+        <input id="year" type="number" placeholder="Year" style="width:90px" />
+        <button id="importBtn">Add deadlines to Notion</button>
       </div>
-      <div id="planMsg" class="msg"></div>
-      <div id="bars" class="bars" style="margin-top:12px"></div>
+      <div id="parseMsg" class="msg"></div>
+      <table id="items" style="display:none"><thead><tr><th>Due</th><th>Task</th><th>Type</th><th>Hours</th></tr></thead><tbody></tbody></table>
     </section>
+
     <section class="card">
-      <h2><span class="step">5</span>Weekly digest</h2>
-      <p class="sub">A Notion page with what's due, what's overdue, planned study hours and this week's activities.</p>
-      <button id="digestBtn">Publish digest</button>
-      <div id="digestMsg" class="msg"></div>
-      <pre id="digest" style="margin-top:12px; display:none"></pre>
+      <h2><span class="step">3</span>Life outside class</h2>
+      <p class="sub">What do you enjoy, or want to start? Tap a few, or type your own.</p>
+      <div id="chips" class="chips"></div>
+      <div class="row">
+        <input id="interests" class="grow" placeholder="Anything else? e.g. guitar, sci-fi books, 10k race" />
+        <button id="suggestBtn">Suggest activities</button>
+      </div>
+      <div id="lifeMsg" class="msg"></div>
+      <div id="suggestions" class="sugs"></div>
+      <h3 style="margin-top:16px">My life goals</h3>
+      <div id="goals" class="sub">None yet. Add one from the suggestions.</div>
     </section>
   </div>
+
+  <section class="card">
+    <h2><span class="step">4</span>Your week</h2>
+    <p class="sub">Builds your schedule: study blocks before each deadline, activities in free slots around them. Tick <b>Done</b> in Notion and re-run anytime.</p>
+    <div class="row">
+      <label>Max study hours/day <input id="cap" type="number" step="0.5" value="3" style="width:70px" /></label>
+      <label>Start <input id="today" type="date" /></label>
+      <button id="planBtn" class="big">Build my plan</button>
+      <button id="digestBtn" class="ghost">Send weekly digest to Notion</button>
+      <button id="dashboardBtn" class="ghost">Update Notion dashboard</button>
+    </div>
+    <div id="planMsg" class="msg"></div>
+    <div id="scores" class="scores"></div>
+    <div id="cal" class="cal" style="display:none"></div>
+    <div id="legend" class="legend" style="display:none"><i style="background:var(--study)"></i>Study<i style="background:var(--life)"></i>Life</div>
+    <div id="digestMsg" class="msg"></div>
+    <details id="digestBox" style="display:none"><summary>Preview digest</summary><pre id="digest"></pre></details>
+  </section>
 </main>
+</div>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-let parsed = [];
 async function api(path, body) {
   const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const data = await r.json();
   if (!r.ok) throw new Error(data.detail || r.statusText);
   return data;
 }
-function busy(btn, fn) {
-  return async () => { btn.disabled = true; try { await fn(); } finally { btn.disabled = false; if (btn === $("importBtn") && !parsed.length) btn.disabled = true; } };
-}
+const busy = (btn, fn) => async () => { btn.disabled = true; try { await fn(); } finally { btn.disabled = false; } };
 function say(el, text, ok = true) { $(el).textContent = text; $(el).className = "msg " + (ok ? "ok" : "err"); }
-function day() { return $("today").value || null; }
+const day = () => $("today").value || null;
+const nice = (iso, o = { weekday: "short", month: "short", day: "numeric" }) => new Date(iso.slice(0, 10) + "T00:00").toLocaleDateString("en-US", o);
 
 $("tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
 $("today").value = new Date().toISOString().slice(0, 10);
@@ -137,76 +157,85 @@ Essay on AI ethics due ${fmt(20)}
 Final Project presentation - ${fmt(28)}
 Final Exam on ${fmt(35)}`;
 
+const CHIPS = [["🥾", "Hiking"], ["🏃", "Half marathon"], ["👟", "Running"], ["📖", "Reading"], ["🏋️", "Gym"], ["🧘", "Mindfulness"], ["🎸", "Music"],
+  ["🎨", "Drawing"], ["🗣️", "Languages"], ["🤝", "Friends"], ["🚴", "Cycling"], ["🍳", "Cooking"], ["📷", "Photography"], ["⚽", "Sports"]];
+const picked = new Set(["Hiking", "Half marathon", "Reading"]);
+$("chips").innerHTML = CHIPS.map(([e, n]) => `<button class="chip${picked.has(n) ? " on" : ""}" data-n="${n}">${e} ${n}</button>`).join("");
+document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { const n = c.dataset.n; picked.has(n) ? picked.delete(n) : picked.add(n); c.classList.toggle("on"); });
+
 api("/api/status").then((s) => {
-  $("mode").textContent = s.demo ? "demo mode (no Notion token)" : "connected to Notion";
+  $("mode").textContent = s.demo ? "demo mode" : "connected to Notion";
   $("mode").className = "badge" + (s.demo ? "" : " live");
-  if (s.ready) { say("setupMsg", "Already connected. Databases are ready."); loadGoals(); }
+  if (s.ready) { say("setupMsg", "Connected. Your databases are ready."); loadGoals(); }
 });
 
 $("setupBtn").onclick = busy($("setupBtn"), async () => {
-  try { await api("/api/setup", { page: $("page").value, timezone: $("tz").value }); say("setupMsg", "Connected. Courses, Assignments & Exams, Schedule and Life Goals are in your Notion page."); loadGoals(); }
+  try { await api("/api/setup", { page: $("page").value, timezone: $("tz").value }); say("setupMsg", "Connected. Courses, Assignments & Exams, Life Goals and Schedule are now in your Notion page."); loadGoals(); }
   catch (e) { say("setupMsg", e.message, false); }
 });
 
-$("parseBtn").onclick = busy($("parseBtn"), async () => {
-  const body = { text: $("syllabus").value, course: $("course").value || null, year: +$("year").value || null };
-  parsed = (await api("/api/parse", body)).items;
-  const tb = document.querySelector("#items tbody");
-  tb.innerHTML = parsed.map((i) => `<tr><td>${i.due}</td><td>${esc(i.title)}</td><td><span class="tag ${i.type}">${i.type}</span></td><td>${i.hours}</td><td>${esc(i.course || "-")}</td></tr>`).join("");
-  $("items").style.display = parsed.length ? "" : "none";
-  $("importBtn").disabled = !parsed.length;
-  say("parseMsg", `${parsed.length} deadlines found.`, parsed.length > 0);
-});
-
 $("importBtn").onclick = busy($("importBtn"), async () => {
-  try { const r = await api("/api/import", { items: parsed }); say("parseMsg", `Added ${r.created.length} to Notion, skipped ${r.skipped.length} already there.`); }
-  catch (e) { say("parseMsg", e.message, false); }
-});
-
-$("planBtn").onclick = busy($("planBtn"), async () => {
   try {
-    const p = await api("/api/plan", { today: day(), daily_cap: +$("cap").value });
-    const study = p.sessions.filter((s) => s.kind === "Study"), life = p.sessions.filter((s) => s.kind === "Life");
-    const sum = (a) => a.reduce((t, s) => t + s.hours, 0);
-    const risk = Object.entries(p.at_risk);
-    say("planMsg", `${study.length} study sessions (${sum(study)}h) + ${life.length} life activities (${sum(life)}h) written to your Schedule.` + (risk.length ? ` At risk: ${risk.map(([t, h]) => `${t} (${h}h short)`).join(", ")}` : ""), !risk.length);
-    const days = [...new Set([...Object.keys(p.study_by_day), ...Object.keys(p.life_by_day)])].sort().slice(0, 14);
-    const max = Math.max(1, ...days.map((d) => (p.study_by_day[d] || 0) + (p.life_by_day[d] || 0)));
-    $("bars").innerHTML = days.map((d) => { const a = p.study_by_day[d] || 0, b = p.life_by_day[d] || 0;
-      return `<div class="bar"><span>${new Date(d + "T00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</span><span class="stack"><span class="fill" style="width:${(a / max) * 100}%"></span><span class="fill life" style="width:${(b / max) * 100}%"></span></span><span>${a + b}h</span></div>`; }).join("")
-      + `<div class="legend"><i style="background:var(--accent)"></i>Study<i style="background:#0f7b6c"></i>Life</div>`;
-  } catch (e) { say("planMsg", e.message, false); }
+    const items = (await api("/api/parse", { text: $("syllabus").value, course: $("course").value || null, year: +$("year").value || null })).items;
+    if (!items.length) return say("parseMsg", "No dated deadlines found. Each deadline needs a date on the same line.", false);
+    $("items").querySelector("tbody").innerHTML = items.map((i) => `<tr><td>${nice(i.due)}</td><td>${esc(i.title)}</td><td><span class="tag ${i.type}">${i.type}</span></td><td>${i.hours}h</td></tr>`).join("");
+    $("items").style.display = "";
+    const r = await api("/api/import", { items });
+    say("parseMsg", `Found ${items.length} deadlines. ${r.created.length} added to Notion` + (r.skipped.length ? `, ${r.skipped.length} were already there.` : "."));
+  } catch (e) { say("parseMsg", e.message, false); }
 });
 
 async function loadGoals() {
   try {
     const gs = (await api("/api/goals")).goals;
-    $("goals").innerHTML = gs.length ? gs.map((g) => `<div class="goal"><span class="st ${esc(g.status)}">${esc(g.status)}</span><span class="sp">${esc(g.title)}${g.target ? " - " + esc(g.target) : ""} <span class="meta" style="color:var(--muted)">${g.sessions_per_week}x/week, ${g.hours}h, ${esc(g.time)}</span></span>`
+    $("goals").innerHTML = gs.length ? gs.map((g) => `<div class="goal"><span class="st ${esc(g.status)}">${esc(g.status)}</span><span class="sp"><b>${esc(g.title)}</b>${g.target ? " - " + esc(g.target) : ""}<br><span style="color:var(--muted)">${g.sessions_per_week}x a week, ${g.hours * 60} min, ${esc(g.time).toLowerCase()}</span></span>`
       + (g.status === "Active" ? `<button class="ghost" data-id="${esc(g.notion_id)}" data-st="Paused">Pause</button>` : `<button class="ghost" data-id="${esc(g.notion_id)}" data-st="Active">Resume</button>`)
-      + `<button class="ghost" data-id="${esc(g.notion_id)}" data-st="Done">Done</button></div>`).join("") : "None yet.";
+      + `<button class="ghost" data-id="${esc(g.notion_id)}" data-st="Done">Finished</button></div>`).join("") : "None yet. Add one from the suggestions.";
     document.querySelectorAll(".goal button").forEach((b) => b.onclick = async () => { await api(`/api/goals/${b.dataset.id}/status`, { status: b.dataset.st }); loadGoals(); });
   } catch (e) { /* not connected yet */ }
 }
 
 $("suggestBtn").onclick = busy($("suggestBtn"), async () => {
   try {
-    const sugs = (await api("/api/suggest", { interests: $("interests").value, today: day() })).suggestions;
-    $("suggestions").innerHTML = sugs.map((s, i) => `<div class="sug"><b>${s.emoji} ${esc(s.title)}</b><span class="meta">${s.sessions_per_week}x/week, ${s.weekly_hours}h - ${esc(s.time)} ${s.days.join("/")}</span><span>${esc(s.why)}</span>`
-      + (s.books ? `<span class="meta">Books: ${s.books.map(esc).join("; ")}</span>` : "") + `<button data-i="${i}">Add to Notion</button></div>`).join("");
+    const interests = [...picked, $("interests").value].filter(Boolean).join(", ");
+    const sugs = (await api("/api/suggest", { interests, today: day() })).suggestions;
+    $("suggestions").innerHTML = sugs.map((s, i) => `<div class="sug"><b>${s.emoji} ${esc(s.title)}</b><button data-i="${i}">+ Add</button><span class="meta">${s.sessions_per_week}x a week · ${s.weekly_hours}h total · ${esc(s.time).toLowerCase()}s</span><span class="meta">${esc(s.why)}${s.books ? "<br>Try: " + s.books.slice(0, 3).map(esc).join(", ") : ""}</span></div>`).join("");
     document.querySelectorAll(".sug button").forEach((b) => b.onclick = async () => {
       const s = sugs[+b.dataset.i]; b.disabled = true;
-      try { await api("/api/goals", { template: s.template, target: s.target || "" }); b.textContent = "Added"; say("lifeMsg", `${s.title} added to Life Goals. Hit "Plan my weeks" to schedule it.`); loadGoals(); }
+      try { await api("/api/goals", { template: s.template, target: s.target || "" }); b.textContent = "✓ Added"; say("lifeMsg", `${s.title} saved to Life Goals. Click "Build my plan" to schedule it.`); loadGoals(); }
       catch (e) { b.disabled = false; say("lifeMsg", e.message, false); }
     });
   } catch (e) { say("lifeMsg", e.message, false); }
 });
 
+$("planBtn").onclick = busy($("planBtn"), async () => {
+  try {
+    const p = await api("/api/plan", { today: day(), daily_cap: +$("cap").value });
+    const study = p.sessions.filter((s) => s.kind === "Study"), life = p.sessions.filter((s) => s.kind === "Life");
+    say("planMsg", `Saved to your Notion Schedule: ${study.length} study blocks and ${life.length} activities over the next weeks.`);
+    $("scores").innerHTML = p.weeks.map((w, i) => `<div class="score ${w.label.split(" ")[0]}"><div>${i ? "Week of " + nice(w.start, { month: "short", day: "numeric" }) : "Next 7 days"}</div>
+      <div class="n">${w.score}<small> / 100</small></div><div class="l">${w.label}</div><div class="h">📚 ${w.study_hours}h study · 🌱 ${w.life_hours}h life</div><div class="t">${esc(w.tip)}</div></div>`).join("");
+    const start = new Date((day() || new Date().toISOString().slice(0, 10)) + "T00:00");
+    const days = [...Array(7)].map((_, i) => { const d = new Date(start); d.setDate(d.getDate() + i); return d.toISOString().slice(0, 10); });
+    $("cal").innerHTML = days.map((d) => `<div class="day"><div class="dh">${nice(d, { weekday: "short" })} <span>${nice(d, { month: "short", day: "numeric" })}</span></div>`
+      + p.sessions.filter((s) => s.start.slice(0, 10) === d).map((s) => `<div class="blk ${s.kind}">${esc(s.title)}<i>${s.start.slice(11, 16)} · ${s.hours * 60} min</i></div>`).join("") + "</div>").join("");
+    $("cal").style.display = $("legend").style.display = "";
+  } catch (e) { say("planMsg", e.message, false); }
+});
+
 $("digestBtn").onclick = busy($("digestBtn"), async () => {
   try {
     const d = await api("/api/digest", { today: day(), daily_cap: +$("cap").value });
-    $("digest").textContent = d.markdown; $("digest").style.display = "";
-    $("digestMsg").innerHTML = d.url ? `Published: <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.title)}</a>` : "Digest generated.";
+    $("digest").textContent = d.markdown; $("digestBox").style.display = "";
+    $("digestMsg").innerHTML = d.url ? `Weekly digest published: <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.title)}</a>` : "Digest ready (demo mode: not sent to Notion).";
     $("digestMsg").className = "msg ok";
+  } catch (e) { say("digestMsg", e.message, false); }
+});
+
+$("dashboardBtn").onclick = busy($("dashboardBtn"), async () => {
+  try {
+    await api("/api/dashboard", { today: day() });
+    say("digestMsg", "Dashboard updated on your Notion page.");
   } catch (e) { say("digestMsg", e.message, false); }
 });
 </script>
