@@ -9,7 +9,7 @@
   * { box-sizing:border-box; }
   body { margin:0; font-family:ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; background:var(--bg); color:var(--ink); }
   .wrap { max-width:1120px; margin:auto; padding:0 24px; }
-  header { padding:32px 0 8px; }
+  header { padding:22px 0 8px; }
   header h1 { margin:0; font-size:30px; } header .lead { margin:8px 0 0; font-size:17px; color:var(--muted); max-width:760px; line-height:1.45; }
   .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#fbecdd; color:var(--warn); margin-left:8px; vertical-align:middle; font-weight:500; }
   .badge.live { background:#ddedea; color:var(--life); }
@@ -56,8 +56,23 @@
   .legend { font-size:12px; color:var(--muted); margin-top:8px; } .legend i { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 4px 0 10px; vertical-align:middle; }
   details { margin-top:10px; font-size:13px; } pre { white-space:pre-wrap; background:#f7f6f3; padding:12px; border-radius:6px; font-size:12px; }
   a { color:var(--study); }
-  .hero { display:flex; gap:16px; align-items:center; justify-content:space-between; margin-top:14px; padding:16px 20px; border-radius:12px; background:linear-gradient(90deg,#e7f3f8,#ddedea); border:1px solid var(--line); font-size:14px; color:var(--muted); line-height:1.45; }
-  .hero b { color:var(--ink); font-size:16px; } .hero button { white-space:nowrap; font-size:16px; padding:12px 22px; }
+  nav { display:flex; gap:18px; align-items:center; font-size:15px; } nav .sp { flex:1; } nav a { color:var(--muted); text-decoration:none; font-size:14px; } nav a:hover { color:var(--ink); }
+  .hero { display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:center; margin-top:22px; padding:34px; border-radius:18px; background:radial-gradient(circle at 15% 10%,#e7f3f8 0,transparent 55%),radial-gradient(circle at 90% 90%,#ddedea 0,transparent 55%),#fff; border:1px solid var(--line); box-shadow:0 10px 30px rgba(15,15,15,.05); }
+  .hero h1 { font-size:52px; line-height:1.02; margin:0 0 14px; letter-spacing:-.02em; } .hero h1 span { background:linear-gradient(90deg,var(--study),var(--life)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero p { font-size:17px; color:var(--muted); line-height:1.5; margin:0 0 16px; max-width:520px; }
+  .quick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; } .quick .chip { font-size:13px; padding:5px 10px; }
+  .cta { font-size:17px; font-weight:600; padding:14px 24px; border-radius:10px; background:linear-gradient(90deg,var(--study),var(--life)); box-shadow:0 6px 18px rgba(35,131,226,.3); transition:transform .15s; } .cta:hover { transform:translateY(-2px); }
+  .hint { font-size:13px; font-weight:600; margin-bottom:6px; }
+  .link { font-size:14px; color:var(--muted); } .trust { margin-top:14px; font-size:13px; color:var(--muted); }
+  .preview { background:#fbfbfa; border:1px solid var(--line); border-radius:14px; padding:22px; text-align:center; }
+  .ring { --c:var(--life); width:170px; height:170px; margin:0 auto; border-radius:50%; display:grid; place-items:center; background:conic-gradient(var(--c) calc(var(--p)*1%), #ecebe8 0); transition:--p 1s; }
+  .ring > div { width:134px; height:134px; border-radius:50%; background:#fbfbfa; display:grid; place-content:center; } .ring b { font-size:44px; line-height:1; } .ring small { color:var(--muted); } .ring i { font-style:normal; font-size:13px; font-weight:600; color:var(--c); margin-top:4px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:18px 0 14px; font-size:12px; color:var(--muted); } .stats b { display:block; font-size:22px; color:var(--ink); }
+  .bars { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; height:110px; align-items:end; } .bars div { display:flex; flex-direction:column; justify-content:flex-end; height:100%; gap:2px; }
+  .bars i { display:block; background:var(--study); border-radius:4px 4px 0 0; transition:height .8s; } .bars i.l { background:var(--life); border-radius:0 0 4px 4px; } .bars span { font-size:11px; color:var(--muted); margin-top:4px; }
+  .how { margin:18px 0 6px; } .how div { padding:16px 18px; } .how em { font-style:normal; font-size:26px; display:block; margin-bottom:6px; }
+  .own { font-size:20px; margin:30px 0 0; }
+  @media (max-width:900px){ .hero { grid-template-columns:1fr; padding:22px; } .hero h1 { font-size:38px; } }
   .surprise { display:none; margin-top:14px; padding:14px 16px; border-radius:10px; border:1px dashed var(--life); background:#f3faf8; font-size:14px; }
   .surprise b { font-size:16px; } .surprise .row { margin-top:8px; }
 </style>
@@ -65,18 +80,29 @@
 <body>
 <div class="wrap">
 <header>
-  <h1>🧭 StudyPilot <span id="mode" class="badge">...</span></h1>
-  <p class="lead">Study hard, live fully. StudyPilot plans study time before every deadline <em>and</em> makes room for the things you love, like hikes, runs, books and friends. Everything lives in your Notion Student OS.</p>
-  <div class="how">
-    <div><b>📚 1. Add your syllabus</b>It finds every deadline and plans study blocks before each one, never more than your daily limit.</div>
-    <div><b>🌱 2. Pick what you love</b>Hiking, running, reading... It suggests a plan that fits your workload and gives it real time slots.</div>
-    <div><b>⚖️ 3. Check your Balance Score</b>One score per week shows overload early. Exam weeks automatically get lighter activities.</div>
-  </div>
+  <nav><b>🧭 StudyPilot</b> <span id="mode" class="badge">...</span><span class="sp"></span><a href="https://github.com/ratulhasanruhan/studypilot-notion" target="_blank">GitHub</a><a href="https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f" target="_blank">Live Notion example</a></nav>
   <section class="hero">
-    <div><b>New here? Do it all in one click.</b><br>Uses the syllabus and interests below: finds deadlines, picks 3 activities you'll enjoy, builds your weeks and fills your Notion page.</div>
-    <button id="autoBtn" class="big">✨ Plan my semester</button>
+    <div class="pitch">
+      <h1>Study hard.<br><span>Live fully.</span></h1>
+      <p>Paste your syllabus. StudyPilot books study time before every deadline, keeps room for hikes, runs, books and friends, and warns you before a week gets too heavy. It all goes straight into Notion.</p>
+      <div class="hint">What do you enjoy? Tap a few:</div><div class="quick" id="quick"></div>
+      <div class="row"><button id="autoBtn" class="cta">✨ Plan my semester in 1 click</button><a href="#own" class="link">or use my own syllabus ↓</a></div>
+      <div id="autoMsg" class="msg"></div>
+      <div class="trust">✓ Free &nbsp; ✓ No sign-up &nbsp; ✓ Works with Notion Student OS</div>
+    </div>
+    <div class="preview">
+      <div class="ring" id="ring" style="--p:0"><div><b id="ringN">?</b><small>/100</small><i id="ringL">Balance Score</i></div></div>
+      <div class="stats"><div><b id="stStudy">0h</b>study this week</div><div><b id="stLife">0h</b>life this week</div><div><b id="stDue">0</b>deadlines</div></div>
+      <div class="bars" id="bars"><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div><div><i style="height:8%"></i><i class="l" style="height:6%"></i><span>-</span></div></div>
+      <div class="legend"><i style="background:var(--study)"></i>Study <i style="background:var(--life)"></i>Life</div>
+    </div>
   </section>
-  <div id="autoMsg" class="msg"></div>
+  <div class="how">
+    <div><em>📚</em><b>1. Add your syllabus</b>Every deadline found and planned, never over your daily limit.</div>
+    <div><em>🌱</em><b>2. Pick what you love</b>Activities that fit your workload, in real time slots.</div>
+    <div><em>⚖️</em><b>3. Watch your balance</b>A weekly score that warns you early. Exam weeks get lighter.</div>
+  </div>
+  <h2 id="own" class="own">Do it step by step with your own classes</h2>
 </header>
 <main>
   <section class="card">
@@ -171,8 +197,13 @@ Final Exam on ${fmt(35)}`;
 const CHIPS = [["🥾", "Hiking"], ["🏃", "Half marathon"], ["👟", "Running"], ["📖", "Reading"], ["🏋️", "Gym"], ["🧘", "Mindfulness"], ["🎸", "Music"],
   ["🎨", "Drawing"], ["🗣️", "Languages"], ["🤝", "Friends"], ["🚴", "Cycling"], ["🍳", "Cooking"], ["📷", "Photography"], ["⚽", "Sports"]];
 const picked = new Set(["Hiking", "Half marathon", "Reading"]);
-$("chips").innerHTML = CHIPS.map(([e, n]) => `<button class="chip${picked.has(n) ? " on" : ""}" data-n="${n}">${e} ${n}</button>`).join("");
-document.querySelectorAll(".chip").forEach((c) => c.onclick = () => { const n = c.dataset.n; picked.has(n) ? picked.delete(n) : picked.add(n); c.classList.toggle("on"); });
+const chipHtml = (list) => list.map(([e, n]) => `<button class="chip${picked.has(n) ? " on" : ""}" data-n="${n}">${e} ${n}</button>`).join("");
+$("chips").innerHTML = chipHtml(CHIPS);
+$("quick").innerHTML = chipHtml(CHIPS.slice(0, 7));
+document.querySelectorAll(".chip").forEach((c) => c.onclick = () => {
+  const n = c.dataset.n; picked.has(n) ? picked.delete(n) : picked.add(n);
+  document.querySelectorAll(`.chip[data-n="${n}"]`).forEach((x) => x.classList.toggle("on", picked.has(n)));
+});
 
 api("/api/status").then((s) => {
   $("mode").textContent = s.demo ? "demo mode" : "connected to Notion";
@@ -229,8 +260,22 @@ function renderPlan(p) {
     $("cal").innerHTML = days.map((d) => `<div class="day"><div class="dh">${nice(d, { weekday: "short" })} <span>${nice(d, { month: "short", day: "numeric" })}</span></div>`
       + p.sessions.filter((s) => s.start.slice(0, 10) === d).map((s) => `<div class="blk ${s.kind}">${esc(s.title)}<i>${s.start.slice(11, 16)} · ${s.hours * 60} min</i></div>`).join("") + "</div>").join("");
     $("cal").style.display = $("legend").style.display = "";
+    renderHero(p);
 }
-const interestText = () => [...picked, $("interests").value].filter(Boolean).join(", ");
+function renderHero(p) {
+  const w = p.weeks[0]; if (!w) return;
+  const color = { Balanced: "var(--life)", Stretched: "var(--warn)" }[w.label] || "var(--bad)";
+  $("ring").style.setProperty("--c", color);
+  let n = 0; const t = setInterval(() => { n = Math.min(w.score, n + 3); $("ring").style.setProperty("--p", n); $("ringN").textContent = n; if (n >= w.score) clearInterval(t); }, 18);
+  $("ringL").textContent = w.label;
+  $("stStudy").textContent = w.study_hours + "h"; $("stLife").textContent = w.life_hours + "h"; $("stDue").textContent = new Set(p.sessions.filter((s) => s.kind === "Study").map((s) => s.item_title + s.course)).size;
+  const start = new Date((day() || new Date().toISOString().slice(0, 10)) + "T00:00");
+  const days = [...Array(7)].map((_, i) => { const d = new Date(start); d.setDate(d.getDate() + i); return d.toISOString().slice(0, 10); });
+  const hrs = (d, k) => p.sessions.filter((s) => s.kind === k && s.start.slice(0, 10) === d).reduce((a, s) => a + s.hours, 0);
+  const max = Math.max(1, ...days.map((d) => hrs(d, "Study") + hrs(d, "Life")));
+  $("bars").innerHTML = days.map((d) => `<div><i style="height:${hrs(d, "Study") / max * 85}%"></i><i class="l" style="height:${hrs(d, "Life") / max * 85}%"></i><span>${nice(d, { weekday: "short" })}</span></div>`).join("");
+}
+const interestText = () => [...picked, $("interests").value].filter(Boolean).join(", ") || "hiking, running, reading";
 
 $("autoBtn").onclick = busy($("autoBtn"), async () => {
   try {
@@ -238,7 +283,6 @@ $("autoBtn").onclick = busy($("autoBtn"), async () => {
     const r = await api("/api/autopilot", { text: $("syllabus").value, interests: interestText(), today: day(), daily_cap: +$("cap").value, course: $("course").value || null, year: +$("year").value || null });
     say("autoMsg", `Done! ${r.found} deadlines found (${r.created} new)` + (r.goals_added.length ? `, added ${r.goals_added.join(", ")}` : "") + ". Your week is below" + (r.dashboard ? " and on your Notion page." : "."));
     loadGoals(); renderPlan(r.plan);
-    $("scores").scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (e) { say("autoMsg", e.message, false); }
 });
 
