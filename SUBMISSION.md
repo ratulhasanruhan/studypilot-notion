@@ -44,5 +44,6 @@ Python 3.10+, FastAPI, Notion REST API (2022-06-28), python-dateutil, vanilla HT
 
 ## Links
 - Repo: https://github.com/ratulhasanruhan/studypilot-notion
+- Live web app: https://studypilot-notion.vercel.app
 - Demo video: <add link>
 - Live Notion example: https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f

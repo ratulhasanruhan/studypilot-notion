@@ -6,7 +6,7 @@ Built with Devin for the **Cognition × Notion Student OS Hackathon**.
 
 | | |
 |---|---|
-| 🌐 **Try the web app** | _coming soon_ ([deploy your own](#deploy-your-own)) |
+| 🌐 **Try the web app** | [studypilot-notion.vercel.app](https://studypilot-notion.vercel.app) (demo mode, no sign-up) |
 | 📒 **See it in Notion** | [Student Life HQ (live example)](https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f) |
 | 💻 **Code** | you're here |
 
