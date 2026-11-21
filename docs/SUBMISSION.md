@@ -26,7 +26,7 @@ StudyPilot is a web app + CLI that plugs into Notion Student OS:
 - **Notion** is the system of record: everything is regular Notion databases and pages, so calendar, board and timeline views of the Student OS work out of the box, and ticking Done in Notion drives the next plan.
 
 ## Screenshot
-![StudyPilot web app](docs/screenshot.png)
+![StudyPilot web app](images/screenshot.png)
 
 ## Tech
 Python 3.10+, FastAPI, Notion REST API (2022-06-28), python-dateutil, vanilla HTML/JS, pytest. An in-memory Notion fake powers tests and a no-token demo mode.

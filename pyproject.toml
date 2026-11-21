@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "studypilot"
-version = "0.1.0"
+version = "0.3.0"
 description = "Turn syllabi into a Notion Student OS with auto-planned study sessions and weekly digests."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
+keywords = ["academic planner", "Notion", "student productivity", "syllabus parser"]
 dependencies = [
   "fastapi>=0.110",
   "uvicorn[standard]>=0.27",
@@ -16,6 +17,11 @@ dependencies = [
   "python-dateutil>=2.8",
   "python-multipart>=0.0.9",
 ]
+
+[project.urls]
+Homepage = "https://studypilot-notion.vercel.app"
+Repository = "https://github.com/ratulhasanruhan/studypilot-notion"
+Documentation = "https://github.com/ratulhasanruhan/studypilot-notion/tree/main/docs"
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "httpx>=0.27"]

@@ -10,7 +10,7 @@ Built with Devin for the **Cognition × Notion Student OS Hackathon**.
 | 📒 **See it in Notion** | [Student Life HQ (live example)](https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f) |
 | 💻 **Code** | you're here |
 
-![StudyPilot web app](docs/screenshot.png)
+![StudyPilot web app](docs/images/screenshot.png)
 
 ## What it does
 
@@ -46,6 +46,8 @@ pip install -e ".[dev]"
 STUDYPILOT_DEMO=1 studypilot serve        # open http://127.0.0.1:8000 (demo data, no Notion needed)
 ```
 
+Or run `make demo` to create the virtual environment, install dependencies, and start the demo.
+
 ### Connect your own Notion
 
 1. Create an integration at [notion.so/profile/integrations](https://www.notion.so/profile/integrations) and copy its secret.
@@ -70,24 +72,27 @@ studypilot digest        # publishes this week's digest page
 
 Without a `NOTION_TOKEN` it runs in demo mode. Add `NOTION_TOKEN` in Vercel's environment variables to use your own workspace.
 
-## How it's built
+See the [deployment guide](docs/DEPLOY.md) for details.
 
-Python, FastAPI, the Notion API and plain HTML/JS. The main parts:
+## Project structure
 
-| File | Job |
-|---|---|
-| `syllabus.py` | Finds and classifies deadlines |
-| `planner.py` | Schedules study blocks |
-| `life.py` | Suggests and schedules activities (18 templates) |
-| `balance.py` | Weekly Balance Score and tips |
-| `dashboard.py`, `digest.py` | Notion dashboard and weekly page |
-| `core.py`, `notion.py` | Notion setup, sync and re-planning |
-| `web.py`, `static/index.html` | Web app |
+```text
+api/          Vercel entry point
+studypilot/   Python package and web UI
+tests/        Unit and API tests
+examples/     Sample syllabi
+docs/         Architecture, setup, deployment, and submission
+```
 
-Tests: `pytest` (run on every push by GitHub Actions).
+- [Architecture](docs/ARCHITECTURE.md)
+- [Notion setup and CLI guide](docs/NOTION_SETUP.md)
+- [Vercel deployment](docs/DEPLOY.md)
+- [Hackathon submission](docs/SUBMISSION.md)
+
+Run the test suite with `make test` (also run on every push by GitHub Actions).
 
 ## Built with Devin
 
-Devin (by Cognition) designed, coded, tested and deployed StudyPilot, and set up the live Notion workspace, from chat. See [SUBMISSION.md](SUBMISSION.md) for the hackathon write-up.
+Devin (by Cognition) designed, coded, tested and deployed StudyPilot, and set up the live Notion workspace, from chat. See [docs/SUBMISSION.md](docs/SUBMISSION.md) for the hackathon write-up.
 
 MIT license
