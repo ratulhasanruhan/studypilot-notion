@@ -24,7 +24,7 @@ Everything lives in normal Notion databases, so it works with Notion's calendar,
 ## Quick start
 
 ```bash
-git clone <this repo> && cd studypilot-notion
+git clone https://github.com/ratulhasanruhan/studypilot-notion && cd studypilot-notion
 python3 -m venv .venv && . .venv/bin/activate
 pip install -e ".[dev]"
 ```

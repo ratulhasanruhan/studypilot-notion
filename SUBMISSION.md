@@ -35,6 +35,6 @@ Python 3.10+, FastAPI, Notion REST API (2022-06-28), python-dateutil, vanilla HT
 - Using actual time spent to improve hour estimates.
 
 ## Links
-- Repo: <add GitHub URL>
+- Repo: https://github.com/ratulhasanruhan/studypilot-notion
 - Demo video: <add link>
 - Notion template / example workspace: <add link>
