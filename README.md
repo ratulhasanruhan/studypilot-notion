@@ -31,6 +31,9 @@ Everything is saved in normal Notion databases. Tick **Done** in Notion and the 
 
 ## What you get in Notion
 
+The [live example](https://app.notion.com/p/ratulhasan/Student-Life-HQ-54ebed5127cf83c9a24801acafeb200f) is a CSE student's semester: 4 courses (CSE 220, CSE 221, MAT 216, HUM 103), 24 deadlines, 6 life goals, 15 personal tasks and a 4-week plan, all made with the syllabi in `examples/`.
+
+
 - **Courses** and **Assignments & Exams**: every deadline with type, date and estimated hours
 - **Life Goals**: your activities, how often, and what you're aiming for
 - **Schedule**: every study block and activity, with a Done checkbox

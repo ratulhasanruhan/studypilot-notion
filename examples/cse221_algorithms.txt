@@ -1,0 +1,9 @@
+CSE 221 - Algorithms (Fall 2026)
+Instructor: Dr. Rahman
+
+Read CLRS Chapter 15 (Dynamic Programming) by Nov 23
+Assignment 4: Greedy algorithms due Nov 27
+Quiz 3 - Nov 30
+Lab 6: Shortest paths (Dijkstra, Bellman-Ford), due December 4
+Assignment 5: Dynamic programming due Dec 9
+Final Exam on December 20, 2026
