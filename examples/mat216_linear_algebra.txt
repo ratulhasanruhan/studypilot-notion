@@ -1,0 +1,7 @@
+MAT 216 - Linear Algebra
+- Problem Set 7 (eigenvalues) due 11/25
+- Read sections 6.1-6.3 by Nov 28
+- Quiz 5 on 3rd December
+- Problem Set 8 due 12/08
+- Midterm 2: Dec 12
+- Term paper on applications of SVD due Dec 19

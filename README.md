@@ -4,6 +4,8 @@
 
 Built for the **Cognition × Notion Student OS Hackathon**, end to end with Devin.
 
+![StudyPilot web app](docs/screenshot.png)
+
 ## The problem
 
 Every semester starts the same way: five syllabi, fifty deadlines, and an empty planner. Students copy dates into Notion by hand (or don't), then discover the midterm three days out. Knowing *when* things are due is not the same as knowing *when to work on them*.
@@ -81,6 +83,28 @@ Config (database IDs, timezone, daily cap) is saved to `.studypilot.json`.
 
 ```bash
 pytest
+```
+
+CI runs the suite on Python 3.10 and 3.12.
+
+## Example run (live Notion workspace)
+
+Importing the two syllabi in [`examples/`](examples) into a real Student OS page on Nov 21, 2026:
+
+```text
+$ studypilot import examples/cse220_data_structures.txt --year 2026   # Created 8
+$ studypilot import examples/mat216_linear_algebra.txt --year 2026    # Created 6
+$ studypilot import examples/cse220_data_structures.txt --year 2026   # Created 0, skipped 8 duplicates
+$ studypilot plan                                                     # 49 sessions written to Notion
+$ studypilot digest
+# Week of Nov 21, 2026
+## Due this week
+- Tue Nov 24 - Read Chapter 9 (Heaps) (Reading, CSE 220)
+- Wed Nov 25 - Problem Set 7 (eigenvalues) (Assignment, MAT 216)
+- Thu Nov 26 - Homework 5: Hash tables (Assignment, CSE 220)
+## Study plan (12.5h)
+- Sat Nov 21: 2.5h ... Fri Nov 27: 1.5h
+Published: https://app.notion.com/p/Week-of-Nov-21-2026-...
 ```
 
 ## Built with Devin

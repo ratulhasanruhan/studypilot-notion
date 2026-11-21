@@ -52,3 +52,8 @@ def test_respects_study_weekdays():
     cfg = PlannerConfig(study_weekdays={0, 2, 4})
     plan = plan_sessions([Item("HW", date(2026, 11, 9), hours=4)], TODAY, cfg)
     assert all(s.start.weekday() in {0, 2, 4} for s in plan.sessions)
+
+
+def test_session_title_does_not_double_verb():
+    plan = plan_sessions([Item("Read Chapter 9", date(2026, 11, 5), "Reading"), Item("Quiz 2", date(2026, 11, 5), "Quiz")], TODAY)
+    assert {s.title for s in plan.sessions} == {"Read Chapter 9", "Review: Quiz 2"}

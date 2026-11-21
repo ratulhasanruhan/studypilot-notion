@@ -14,8 +14,11 @@ StudyPilot is a web app + CLI that plugs into Notion Student OS:
 4. **Weekly digest** – publishes a Notion page with what's due this week (to-dos), overdue items, hours planned per day, and risk warnings.
 
 ## How Devin and Notion were used
-- **Devin (Cognition)** built the whole project from one chat request: product plan, Python package, Notion integration, scheduler, web UI, 18 tests, docs, and the live Notion connection.
+- **Devin (Cognition)** built the whole project from one chat request: product plan, Python package, Notion integration, scheduler, web UI, 18 tests with CI, docs, and a live run against a real Notion workspace (14 deadlines from 2 syllabi -> 49 scheduled study sessions -> weekly digest page).
 - **Notion** is the system of record: everything is regular Notion databases and pages, so calendar, board and timeline views of the Student OS work out of the box.
+
+## Screenshot
+![StudyPilot web app](docs/screenshot.png)
 
 ## Tech
 Python 3.10+, FastAPI, Notion REST API (2022-06-28), python-dateutil, vanilla HTML/JS, pytest. An in-memory Notion fake powers tests and a no-token demo mode.

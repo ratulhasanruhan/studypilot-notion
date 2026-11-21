@@ -1,0 +1,11 @@
+CSE 220 - Data Structures (Fall 2026)
+Instructor: Dr. Karim
+
+Week 12: Read Chapter 9 (Heaps) by Nov 24
+Homework 5: Hash tables due Nov 26
+Lab 8: Binary search trees, due Sunday, November 29
+Quiz 4 - Dec 1
+Project milestone 2 due Dec 6
+Homework 6 due Dec 10
+Final Project presentation - Dec 17
+Final Exam on December 22, 2026

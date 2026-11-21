@@ -71,6 +71,8 @@ class Session:
     @property
     def title(self) -> str:
         verb = {"Exam": "Review", "Quiz": "Review", "Reading": "Read"}.get(self.item_type, "Work on")
+        if self.item_title.lower().startswith(("read", "review", "study", "work on", "finish")):
+            return self.item_title
         return f"{verb}: {self.item_title}"
 
     def to_dict(self) -> dict:
