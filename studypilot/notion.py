@@ -118,11 +118,15 @@ class NotionClient:
     def append_children(self, block_id: str, children: list, after: str | None = None) -> list[str]:
         ids = []
         for i in range(0, len(children), 100):
-            body = {"children": children[i : i + 100]}
+            batch = children[i : i + 100]
+            body = {"children": batch}
             if after:
                 body["after"] = after
             response = self.request("PATCH", f"/blocks/{block_id}/children", body)
-            ids.extend(block["id"] for block in response.get("results", []))
+            results = response.get("results", [])
+            # Notion may also return the existing siblings around the new blocks; keep only the new ones.
+            new = results[: len(batch)] if after else results[-len(batch) :]
+            ids.extend(block["id"] for block in new)
             if ids:
                 after = ids[-1]
         return ids

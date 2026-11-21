@@ -137,3 +137,20 @@ def test_old_config_defaults_and_demo_dashboard_endpoint(tmp_path, monkeypatch):
     response = client.post("/api/dashboard", json={"today": TODAY.isoformat()})
     assert response.status_code == 200
     assert response.json()["blocks"] > 0
+
+
+def test_append_children_ignores_existing_siblings_in_response():
+    from studypilot.notion import NotionClient
+
+    client = NotionClient("token")
+    sent = []
+
+    def fake_request(method, path, body=None):
+        sent.append(body)
+        new = [{"id": f"new{i}"} for i in range(len(body["children"]))]
+        siblings = [{"id": "template-heading"}, {"id": "courses-db"}]
+        return {"results": new + siblings if body.get("after") else siblings + new}
+
+    client.request = fake_request
+    assert client.append_children("page", [{}, {}], after="anchor") == ["new0", "new1"]
+    assert client.append_children("page", [{}, {}]) == ["new0", "new1"]
