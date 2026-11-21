@@ -50,6 +50,23 @@ class ImportIn(BaseModel):
     items: list[dict]
 
 
+class SuggestIn(BaseModel):
+    interests: str = ""
+    today: date | None = None
+
+
+class GoalIn(BaseModel):
+    template: str
+    target: str = ""
+    sessions_per_week: int | None = None
+    hours: float | None = None
+    time: str | None = None
+
+
+class StatusIn(BaseModel):
+    status: str
+
+
 class DayIn(BaseModel):
     today: date | None = None
     daily_cap: float | None = None
@@ -119,3 +136,27 @@ def digest(body: DayIn):
         return {**d.to_dict(), "url": url}
 
     return _guard(run)
+
+
+@app.post("/api/suggest")
+def suggest(body: SuggestIn):
+    return _guard(lambda: {"suggestions": pilot().suggest(body.interests, body.today)})
+
+
+@app.get("/api/goals")
+def goals():
+    return _guard(lambda: {"goals": [g.to_dict() for g in pilot().list_goals()]})
+
+
+@app.post("/api/goals")
+def add_goal(body: GoalIn):
+    g = _guard(lambda: pilot().add_goal(body.template, body.target, sessions_per_week=body.sessions_per_week,
+                                        hours=body.hours, time=body.time))
+    return g.to_dict()
+
+
+@app.post("/api/goals/{goal_id}/status")
+def goal_status(goal_id: str, body: StatusIn):
+    if body.status not in ("Active", "Paused", "Done"):
+        raise HTTPException(400, "status must be Active, Paused or Done")
+    return _guard(lambda: pilot().set_goal_status(goal_id, body.status).to_dict())

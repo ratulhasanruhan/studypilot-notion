@@ -75,6 +75,14 @@ class NotionClient:
             body["icon"] = {"type": "emoji", "emoji": icon}
         return self.request("POST", "/databases", body)
 
+    def update_database(self, database_id: str, properties: dict | None = None, title: str | None = None) -> dict:
+        body: dict[str, Any] = {}
+        if properties:
+            body["properties"] = properties
+        if title:
+            body["title"] = [{"type": "text", "text": {"content": title}}]
+        return self.request("PATCH", f"/databases/{database_id}", body)
+
     def query_database(self, database_id: str, filter: dict | None = None, sorts: list | None = None) -> Iterator[dict]:
         body: dict[str, Any] = {"page_size": 100}
         if filter:

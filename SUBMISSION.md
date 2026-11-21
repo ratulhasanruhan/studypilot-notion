@@ -1,21 +1,22 @@
 # StudyPilot — Cognition × Notion Student OS Hackathon submission
 
-**One line:** Paste a syllabus; StudyPilot fills your Notion Student OS with every deadline, auto-schedules study sessions before each one, and publishes a weekly digest.
+**One line:** StudyPilot runs your student life from Notion: it turns syllabi into a study plan, then suggests and schedules the things that keep you sane (hikes, half-marathon training, books, friends) around your study time, lighter in exam weeks.
 
 ## Problem
-Students get several syllabi per term with dozens of deadlines in inconsistent formats. Copying them into Notion is tedious, and a list of due dates still doesn't tell you *when to study*. The result: cramming and missed deadlines.
+Students get several syllabi per term with dozens of deadlines in inconsistent formats. Copying them into Notion is tedious, and a list of due dates doesn't tell you *when to study*. When the term gets busy, everything outside class goes first: exercise, reading for fun, hobbies, friends. Planners track coursework only, so these never get a slot and burnout follows.
 
 ## Solution
 StudyPilot is a web app + CLI that plugs into Notion Student OS:
 
-1. **Connect** – creates linked *Courses*, *Assignments & Exams* and *Study Sessions* databases under any Notion page.
-2. **Import a syllabus** – extracts dated deadlines from free-form text (many date formats), classifies them (Exam / Project / Quiz / Lab / Reading / Assignment), estimates hours, links the course, and de-duplicates on re-import.
-3. **Autopilot plan** – earliest-deadline-first scheduler spreads study blocks across the least-loaded days before each deadline, respects a daily hours cap, and flags deadlines that can't fit as *at risk*. Re-planning keeps sessions you marked Done and reschedules the rest.
-4. **Weekly digest** – publishes a Notion page with what's due this week (to-dos), overdue items, hours planned per day, and risk warnings.
+1. **Connect** – creates linked *Courses*, *Assignments & Exams*, *Life Goals* and *Schedule* databases under any Notion page.
+2. **Import a syllabus** – extracts dated deadlines from free-form text, classifies them (Exam / Project / Quiz / Lab / Reading / Assignment), estimates hours, links the course, and de-duplicates on re-import.
+3. **Autopilot study plan** – an earliest-deadline-first scheduler spreads study blocks before each deadline under a daily hours cap and flags deadlines that can't fit as *at risk*. Sessions marked Done count as progress on re-plan.
+4. **Life beyond study** – type your interests ("hiking, half marathon, sci-fi books") and get activity suggestions sized to next week's study load: training plans, weekend hikes, a reading list, gym, mindfulness, music, languages, clubs and more (18 templates). Added activities become Life Goals in Notion and are scheduled in free slots that never clash with study. Plans progress week by week (long runs grow 1.5 km). In exam or heavy weeks they run about half as often and get shorter (a hike becomes a nature walk). Pause, resume or finish goals at any time.
+5. **Weekly digest** – a Notion page with what's due, overdue items, study hours per day, risk warnings, this week's activities as to-dos, and last week's completion count.
 
 ## How Devin and Notion were used
-- **Devin (Cognition)** built the whole project from one chat request: product plan, Python package, Notion integration, scheduler, web UI, 18 tests with CI, docs, and a live run against a real Notion workspace (14 deadlines from 2 syllabi -> 49 scheduled study sessions -> weekly digest page).
-- **Notion** is the system of record: everything is regular Notion databases and pages, so calendar, board and timeline views of the Student OS work out of the box.
+- **Devin (Cognition)** built the whole project from chat: product plan, Python package, Notion integration, study scheduler, life-activity engine, web UI, 26 tests with CI, docs, and live runs against a real Notion workspace (14 deadlines from 2 syllabi plus 4 life goals, all scheduled together, then a weekly digest). When the user changed the scope from "study planner" to "student life planner", Devin redesigned and shipped it in the same session.
+- **Notion** is the system of record: everything is regular Notion databases and pages, so calendar, board and timeline views of the Student OS work out of the box, and ticking Done in Notion drives the next plan.
 
 ## Screenshot
 ![StudyPilot web app](docs/screenshot.png)
@@ -25,14 +26,14 @@ Python 3.10+, FastAPI, Notion REST API (2022-06-28), python-dateutil, vanilla HT
 
 ## Impact
 - Setting up a course goes from ~30 minutes of copy-pasting to under a minute.
-- Turns deadlines into a daily plan with a workload cap, which reduces last-minute cramming.
-- At-risk warnings show overload weeks early, while there is still time to adjust.
+- Deadlines become a daily plan with a workload cap, which reduces cramming.
+- Life goals get real calendar slots and shrink, rather than disappear, in exam weeks, so students keep running, reading and seeing friends all term.
 
 ## What's next
 - LLM fallback for messy syllabus PDFs, and PDF upload.
-- Google Calendar export of Study Sessions.
+- Google Calendar export of the Schedule.
 - Scheduled weekly digests (cron / Notion automations).
-- Using actual time spent to improve hour estimates.
+- Learning from Done/skip history to tune hour estimates and activity frequency.
 
 ## Links
 - Repo: https://github.com/ratulhasanruhan/studypilot-notion

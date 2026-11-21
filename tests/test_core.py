@@ -22,7 +22,8 @@ def pilot(tmp_path):
 
 def test_bootstrap_creates_linked_databases(pilot, tmp_path):
     dbs = pilot.notion.databases
-    assert {d["title"] for d in dbs.values()} == {"Courses", "Assignments & Exams", "Study Sessions"}
+    assert {d["title"] for d in dbs.values()} == {"Courses", "Assignments & Exams", "Schedule", "Life Goals"}
+    assert dbs[pilot.config.sessions_db]["properties"]["Goal"]["relation"]["database_id"] == pilot.config.goals_db
     a = dbs[pilot.config.assignments_db]["properties"]
     assert a["Course"]["relation"]["database_id"] == pilot.config.courses_db
     assert Config.load(tmp_path / "cfg.json").ready
@@ -75,5 +76,9 @@ def test_web_demo_flow(monkeypatch):
     assert c.post("/api/import", json={"items": items}).json()["created"]
     plan = c.post("/api/plan", json={"today": "2026-10-01"}).json()
     assert plan["sessions"]
+    sug = c.post("/api/suggest", json={"interests": "hiking and sci-fi books", "today": "2026-10-01"}).json()["suggestions"]
+    assert sug[0]["template"] == "hiking"
+    g = c.post("/api/goals", json={"template": "hiking"}).json()
+    assert c.post(f"/api/goals/{g['notion_id']}/status", json={"status": "Paused"}).json()["status"] == "Paused"
     dig = c.post("/api/digest", json={"today": "2026-10-10"}).json()
     assert "Midterm Exam" in dig["markdown"]

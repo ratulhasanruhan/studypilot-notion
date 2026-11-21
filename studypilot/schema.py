@@ -30,3 +30,27 @@ def sessions(assignments_db: str) -> dict:
         "Done": {"checkbox": {}},
         "Planned by": {"select": {"options": [{"name": "StudyPilot"}, {"name": "Me"}]}},
     }
+
+
+def goals() -> dict:
+    from .life import CATEGORIES, DAY_NAMES, TIMES
+
+    return {
+        "Name": {"title": {}},
+        "Category": {"select": {"options": [{"name": c} for c in CATEGORIES]}},
+        "Template": {"rich_text": {}},
+        "Sessions/Week": {"number": {"format": "number"}},
+        "Hours/Session": {"number": {"format": "number"}},
+        "Days": {"multi_select": {"options": [{"name": d} for d in DAY_NAMES]}},
+        "Time": {"select": {"options": [{"name": t} for t in TIMES]}},
+        "Status": {"select": {"options": [{"name": s} for s in ["Active", "Paused", "Done"]]}},
+        "Target": {"rich_text": {}},
+        "Started": {"date": {}},
+    }
+
+
+def schedule_life_props(goals_db: str) -> dict:
+    return {
+        "Kind": {"select": {"options": [{"name": "Study"}, {"name": "Life"}]}},
+        "Goal": {"relation": {"database_id": goals_db, "single_property": {}}},
+    }

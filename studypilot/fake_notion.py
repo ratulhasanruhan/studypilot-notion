@@ -26,6 +26,14 @@ class FakeNotion:
     def get_database(self, database_id):
         return self.databases[database_id]
 
+    def update_database(self, database_id, properties=None, title=None):
+        db = self.databases[database_id]
+        if properties:
+            db["properties"].update(properties)
+        if title:
+            db["title"] = title
+        return db
+
     def query_database(self, database_id, filter=None, sorts=None):
         return [
             p for p in self.pages.values()
