@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "studypilot"
+version = "0.1.0"
+description = "Turn syllabi into a Notion Student OS with auto-planned study sessions and weekly digests."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "requests>=2.31",
+  "python-dateutil>=2.8",
+  "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+
+[project.scripts]
+studypilot = "studypilot.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["studypilot*"]
+
+[tool.setuptools.package-data]
+studypilot = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

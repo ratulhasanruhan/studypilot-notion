@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StudyPilot - Syllabus to Notion autopilot</title>
+<style>
+  :root { --bg:#f7f6f3; --card:#fff; --ink:#37352f; --muted:#787774; --line:#e9e9e7; --accent:#2383e2; --ok:#0f7b6c; --warn:#d9730d; --bad:#e03e3e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:28px 24px 8px; max-width:1100px; margin:auto; }
+  header h1 { margin:0; font-size:28px; } header p { margin:6px 0 0; color:var(--muted); }
+  .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#fbecdd; color:var(--warn); margin-left:8px; vertical-align:middle; }
+  .badge.live { background:#ddedea; color:var(--ok); }
+  main { max-width:1100px; margin:auto; padding:12px 24px 48px; display:grid; gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
+  .card h2 { margin:0 0 4px; font-size:17px; } .card .sub { color:var(--muted); font-size:13px; margin:0 0 12px; }
+  .step { display:inline-flex; width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; align-items:center; justify-content:center; margin-right:8px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  input, textarea { font:inherit; border:1px solid var(--line); border-radius:6px; padding:8px 10px; background:#fff; color:var(--ink); }
+  input { min-width:120px; } input.grow { flex:1; min-width:260px; }
+  textarea { width:100%; min-height:180px; font-family: ui-monospace, Menlo, monospace; font-size:13px; }
+  button { font:inherit; border:0; border-radius:6px; padding:8px 14px; background:var(--accent); color:#fff; cursor:pointer; }
+  button.ghost { background:#efefed; color:var(--ink); } button:disabled { opacity:.5; cursor:wait; }
+  table { width:100%; border-collapse:collapse; font-size:14px; } th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:500; font-size:12px; text-transform:uppercase; letter-spacing:.03em; }
+  .tag { font-size:12px; padding:1px 7px; border-radius:4px; background:#e7f3f8; color:#1f6c9f; }
+  .tag.Exam { background:#fbe4e4; color:var(--bad); } .tag.Project { background:#f4f0f7; color:#6940a5; } .tag.Quiz { background:#fbf3db; color:#956400; } .tag.Reading { background:#ddedea; color:var(--ok); }
+  .msg { font-size:14px; margin-top:10px; } .msg.err { color:var(--bad); } .msg.ok { color:var(--ok); }
+  .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap:16px; } @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
+  .bars { display:grid; gap:6px; } .bar { display:grid; grid-template-columns:90px 1fr 46px; gap:8px; align-items:center; font-size:13px; }
+  .bar span.fill { display:block; height:12px; background:var(--accent); border-radius:3px; }
+  pre { white-space:pre-wrap; background:#f7f6f3; padding:12px; border-radius:6px; font-size:13px; margin:0; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>StudyPilot <span id="mode" class="badge">...</span></h1>
+  <p>Paste a syllabus. Get every deadline, a realistic study plan and a weekly digest inside your Notion Student OS.</p>
+</header>
+<main>
+  <section class="card">
+    <h2><span class="step">1</span>Connect your Student OS</h2>
+    <p class="sub">Paste a Notion page URL that is shared with your integration. StudyPilot creates Courses, Assignments &amp; Exams and Study Sessions databases there.</p>
+    <div class="row">
+      <input id="page" class="grow" placeholder="https://www.notion.so/your-workspace/Student-OS-..." />
+      <input id="tz" placeholder="Timezone" />
+      <button id="setupBtn">Connect</button>
+    </div>
+    <div id="setupMsg" class="msg"></div>
+  </section>
+
+  <section class="card">
+    <h2><span class="step">2</span>Import a syllabus</h2>
+    <p class="sub">Any format: schedules, bullet lists, tables pasted as text. Lines with a date and a deadline word become tasks.</p>
+    <textarea id="syllabus"></textarea>
+    <div class="row" style="margin-top:10px">
+      <input id="course" placeholder="Course (auto)" />
+      <input id="year" type="number" placeholder="Year" style="width:100px" />
+      <button id="parseBtn" class="ghost">Preview deadlines</button>
+      <button id="importBtn" disabled>Add to Notion</button>
+    </div>
+    <div id="parseMsg" class="msg"></div>
+    <table id="items" style="margin-top:10px; display:none"><thead><tr><th>Due</th><th>Task</th><th>Type</th><th>Est. hours</th><th>Course</th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <div class="grid2">
+    <section class="card">
+      <h2><span class="step">3</span>Autopilot study plan</h2>
+      <p class="sub">Earliest deadline first, spread across days, capped per day. Re-run anytime: finished sessions count toward progress.</p>
+      <div class="row">
+        <label>Max hours/day <input id="cap" type="number" step="0.5" value="3" style="width:80px" /></label>
+        <label>Today <input id="today" type="date" /></label>
+        <button id="planBtn">Plan my weeks</button>
+      </div>
+      <div id="planMsg" class="msg"></div>
+      <div id="bars" class="bars" style="margin-top:12px"></div>
+    </section>
+    <section class="card">
+      <h2><span class="step">4</span>Weekly digest</h2>
+      <p class="sub">A Notion page with what's due, what's overdue and your planned hours.</p>
+      <button id="digestBtn">Publish digest</button>
+      <div id="digestMsg" class="msg"></div>
+      <pre id="digest" style="margin-top:12px; display:none"></pre>
+    </section>
+  </div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let parsed = [];
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.detail || r.statusText);
+  return data;
+}
+function busy(btn, fn) {
+  return async () => { btn.disabled = true; try { await fn(); } finally { btn.disabled = false; if (btn === $("importBtn") && !parsed.length) btn.disabled = true; } };
+}
+function say(el, text, ok = true) { $(el).textContent = text; $(el).className = "msg " + (ok ? "ok" : "err"); }
+function day() { return $("today").value || null; }
+
+$("tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+$("today").value = new Date().toISOString().slice(0, 10);
+const fmt = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); };
+$("syllabus").value = `CS 101 - Introduction to Programming
+Read Chapter 4 by ${fmt(2)}
+Homework 3 due ${fmt(4)}
+Quiz 2 - ${fmt(6)}
+Lab 5: Recursion, due ${fmt(9)}
+Midterm Exam: ${fmt(12)}
+Project proposal due ${fmt(15)}
+Essay on AI ethics due ${fmt(20)}
+Final Project presentation - ${fmt(28)}
+Final Exam on ${fmt(35)}`;
+
+api("/api/status").then((s) => {
+  $("mode").textContent = s.demo ? "demo mode (no Notion token)" : "connected to Notion";
+  $("mode").className = "badge" + (s.demo ? "" : " live");
+  if (s.ready) say("setupMsg", "Already connected. Databases are ready.");
+});
+
+$("setupBtn").onclick = busy($("setupBtn"), async () => {
+  try { await api("/api/setup", { page: $("page").value, timezone: $("tz").value }); say("setupMsg", "Connected. Courses, Assignments & Exams and Study Sessions are in your Notion page."); }
+  catch (e) { say("setupMsg", e.message, false); }
+});
+
+$("parseBtn").onclick = busy($("parseBtn"), async () => {
+  const body = { text: $("syllabus").value, course: $("course").value || null, year: +$("year").value || null };
+  parsed = (await api("/api/parse", body)).items;
+  const tb = document.querySelector("#items tbody");
+  tb.innerHTML = parsed.map((i) => `<tr><td>${i.due}</td><td>${esc(i.title)}</td><td><span class="tag ${i.type}">${i.type}</span></td><td>${i.hours}</td><td>${esc(i.course || "-")}</td></tr>`).join("");
+  $("items").style.display = parsed.length ? "" : "none";
+  $("importBtn").disabled = !parsed.length;
+  say("parseMsg", `${parsed.length} deadlines found.`, parsed.length > 0);
+});
+
+$("importBtn").onclick = busy($("importBtn"), async () => {
+  try { const r = await api("/api/import", { items: parsed }); say("parseMsg", `Added ${r.created.length} to Notion, skipped ${r.skipped.length} already there.`); }
+  catch (e) { say("parseMsg", e.message, false); }
+});
+
+$("planBtn").onclick = busy($("planBtn"), async () => {
+  try {
+    const p = await api("/api/plan", { today: day(), daily_cap: +$("cap").value });
+    const total = p.sessions.reduce((a, s) => a + s.hours, 0);
+    const risk = Object.entries(p.at_risk);
+    say("planMsg", `${p.sessions.length} sessions (${total}h) written to Study Sessions.` + (risk.length ? ` At risk: ${risk.map(([t, h]) => `${t} (${h}h short)`).join(", ")}` : ""), !risk.length);
+    const cap = +$("cap").value || 3;
+    $("bars").innerHTML = Object.entries(p.hours_by_day).slice(0, 14).map(([d, h]) =>
+      `<div class="bar"><span>${new Date(d + "T00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</span><span><span class="fill" style="width:${Math.min(100, (h / cap) * 100)}%"></span></span><span>${h}h</span></div>`).join("");
+  } catch (e) { say("planMsg", e.message, false); }
+});
+
+$("digestBtn").onclick = busy($("digestBtn"), async () => {
+  try {
+    const d = await api("/api/digest", { today: day(), daily_cap: +$("cap").value });
+    $("digest").textContent = d.markdown; $("digest").style.display = "";
+    $("digestMsg").innerHTML = d.url ? `Published: <a href="${esc(d.url)}" target="_blank" rel="noopener">${esc(d.title)}</a>` : "Digest generated.";
+    $("digestMsg").className = "msg ok";
+  } catch (e) { say("digestMsg", e.message, false); }
+});
+</script>
+</body>
+</html>

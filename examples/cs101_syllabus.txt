@@ -1,0 +1,15 @@
+CS 101 - Introduction to Programming (Fall 2026)
+Instructor: Dr. Rahman
+
+Schedule
+Week 1 (Sep 1): Course intro, Python basics
+Week 2: Read Chapter 2 by Sep 8
+Homework 1 due Sep 12
+Quiz 1 - Sep 15
+Lab 2: Loops and lists, due Friday, September 18
+Problem Set 2 due 9/26
+Midterm Exam: October 14, 2026
+Project proposal due Oct 20
+Essay on AI ethics due 10/30
+Final Project presentation - Dec 2
+Final Exam on December 10
